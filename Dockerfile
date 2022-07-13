@@ -6,3 +6,4 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . /backend/
+RUN flask db init

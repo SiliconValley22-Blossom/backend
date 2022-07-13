@@ -446,6 +446,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-/.idea
+/.idea/**
+/migrations/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,python,flask,pycharm,visualstudiocode

@@ -5,4 +5,4 @@ class UserController(Resource):
 
         #로직
 
-        return {}
+        return {"test", 'hello'}

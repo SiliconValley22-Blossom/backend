@@ -1,15 +1,15 @@
 from flask import Flask
-from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
-from migrate import Migrate
 
-from controller import *
+from config import setInitMigrate
+from controller import routeApi
 
-app = Flask(__name__)
-Api.add_resource(UserController,'/users')
 
-if __name__ == '__main__':
-    app.run()
+def create_app():
+    app = Flask(__name__)
+    routeApi(app)
+    setInitMigrate(app)
+    return app
+
 
 """
 def create_app():
