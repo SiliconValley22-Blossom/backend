@@ -1,9 +1,10 @@
+"""
 from io import BytesIO
 
 from flask import Flask, session
 from PIL import Image
 
-from config import s3_connection
+from config import S3Config
 from entity.photo.photo import Photo
 
 s3=s3_connection()
@@ -53,3 +54,4 @@ def delete_photos_by_id(id_list):
     session.delete(targets)
     session.commit()
     pass
+"""

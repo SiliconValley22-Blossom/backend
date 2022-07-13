@@ -1,30 +1,23 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-from config import setInitMigrate
+from config import getURI
 from controller import routeApi
 
+app = Flask(__name__)
+db = SQLAlchemy(app)
 
-def create_app():
-    app = Flask(__name__)
-    routeApi(app)
-    setInitMigrate(app)
-    return app
+app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
+app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+db.init_app(app)
+from entity import User, Photo
+db.create_all()
 
 
-"""
-def create_app():
-    app = Flask(__name__)
-    api = Api(app)
-    db = SQLAlchemy(app)
+routeApi(app)
 
-    api.add_resource(UserController, '/users')
-    api.add_resource(PhotoController, '/photos/')
-    api.add_resource(ColorizedPhoto, '/photos/<id>')
+if __name__ == '__main__':
+    app.run()
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:123qwe@localhost:3306/test_blossom"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app)
-
-    return app
-    
-"""
