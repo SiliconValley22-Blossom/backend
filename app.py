@@ -1,6 +1,10 @@
 from flask import Flask
+from flask_restful import Api
+
+from controller import *
 
 app = Flask(__name__)
+Api.add_resource(UserController,'/users')
 
 
 @app.route('/')
