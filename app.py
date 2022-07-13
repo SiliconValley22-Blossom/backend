@@ -5,7 +5,13 @@ from migrate import Migrate
 
 from controller import *
 
+app = Flask(__name__)
+Api.add_resource(UserController,'/users')
 
+if __name__ == '__main__':
+    app.run()
+
+"""
 def create_app():
     app = Flask(__name__)
     api = Api(app)
@@ -20,3 +26,5 @@ def create_app():
     db.init_app(app)
 
     return app
+    
+"""

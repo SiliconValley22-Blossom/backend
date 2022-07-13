@@ -1,6 +1,5 @@
 from flask_restful import Resource
 
-
 class UserController(Resource):
     def post(self):
 
