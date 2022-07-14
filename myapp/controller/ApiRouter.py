@@ -1,5 +1,6 @@
 from flask_restful import Api
-from controller import *
+from myapp.controller import *
+
 
 def routeApi(app):
     api = Api(app)

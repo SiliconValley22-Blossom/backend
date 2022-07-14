@@ -1,7 +1,7 @@
 DB_USERNAME = 'root'
-DB_PASSWORD = '1234'
+DB_PASSWORD = '123qwe'
 DB_HOST = 'localhost'
-DB_SCHEMA = 'blossom'
+DB_SCHEMA = 'test_blossom'
 DB_PORT = '3306'
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False

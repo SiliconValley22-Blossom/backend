@@ -1,5 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-from app import db
+from myapp import db
 
 
 class Photo(db.Model):
