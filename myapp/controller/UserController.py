@@ -33,3 +33,10 @@ class UserController(Resource):
         # 로직
         result = None
         return result, 204
+
+
+class UserSingleController(Resource):
+    def get(self, user_id):
+        # 로직
+        result = user_id
+        return result, 200
