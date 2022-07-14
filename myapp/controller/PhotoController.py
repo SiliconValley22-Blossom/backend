@@ -1,9 +1,10 @@
 from io import BytesIO
 
-from flask import request, send_file, Response
+from flask import request, send_file, Response, session
 from flask_restful import Resource
 
-from service import *
+from myapp.entity import Photo
+from myapp.service.PhotoService import get_photos_by_userid, delete_photos_by_id, upload_photos
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -27,10 +28,13 @@ class PhotoController(Resource):
     def post(self):
         # 사진 s3에 저장
         # 링크 받아서 RDS에 저장
-        f=request.files['file']
-        photo_info=upload_photos(f)
 
-        return Response(200)
+        f=request.files['file']
+        #photo_info=upload_photos(f)
+        a=Photo.query.filter_by(user=1)
+        print(a[0].name)
+
+        return Response("123",status=200)
 
     def delete(self): # 보류
         # body로 삭제할 아이디 리스트 받음 [1,4,5...]

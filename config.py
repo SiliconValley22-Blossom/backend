@@ -2,11 +2,13 @@ import logging, boto3, pymysql
 
 from flask import Flask
 
+
+
 RDS_HOST = 'localhost'
 RDS_DATABASE = 'test_blossom'
 RDS_USER = 'root'
 RDS_PASSWORD = '123qwe'
-DB_PORT=3306
+DB_PORT = 3306
 
 
 def db_connection():

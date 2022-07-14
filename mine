@@ -1,0 +1,23 @@
+put_object()
+Bucket : AWS S3 에서 만들었던 bucket name입니다.
+Body : request에서 받아왔던 이미지 파일입니다. (업로드할 파일 객체)
+Key : S3에 업로드할 파일의 경로입니다.
+ContentType : 메타데이터 설정 ex) image/jpeg
+
+
+request.args.to_dict() # 파라미터
+request.form
+
+
+boto3
+s3=boto3.resource('s3'~~)
+bucket=s3.bucket('bucket name')
+bucket.objects.filter('d'='d')
+
+upload_file()
+lsit_buckets()
+
+#image=Image.open(file)
+    #buffer = BytesIO()
+    #image.save(buffer, image.format, quality=70)
+    #buffer.seek(0)

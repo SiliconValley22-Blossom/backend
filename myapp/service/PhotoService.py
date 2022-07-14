@@ -1,20 +1,27 @@
-"""
 from io import BytesIO
 
 from flask import Flask, session
 from PIL import Image
 
-from config import S3Config
-from entity.photo.photo import Photo
+from myapp import db
+from myapp.entity import Photo
 
-s3=s3_connection()
+from myapp.configs import s3_connection
+
+
 BUCKET_NAME="blossom"
-bucket = s3.Bucket(BUCKET_NAME)
+
+def save_photo_to_db():
+    instance=Photo(photo_id=111, name="123",fileFormat="qwe",user=2)
+    db.session.add(instance)
+    db.seesion.commit()
 
 
 # s3에 이미지 저장, 조회, 삭제 / ai 이미지 변환
 def upload_photos(file):
     s3_path='test/123'
+    s3 = s3_connection()
+    bucket = s3.Bucket(BUCKET_NAME)
     s3.Bucket(BUCKET_NAME).put_object(
         Body=file,
         Key=s3_path,
@@ -33,10 +40,11 @@ def upload_photos(file):
 
 
 def get_photos_by_userid(user_id):
-    objs=session.query(Photo.name).filter(user=user_id)
-    print(objs)
+    obj=Photo.query.filter_by(user=user_id)
+    #objs=session.query(Photo.name).filter_by(user=user_id)
+    print(obj)
 
-    return objs
+    return obj
 
 
 def get_photo_from_bucket(filename):
@@ -47,11 +55,9 @@ def get_photo_from_bucket(filename):
 
 def delete_photos_by_id(id_list):
     # s3 삭제
-    for obj in bucket.Object.filter(id__in=id_list):
-        obj.delete()  # 가능하나?
+
     # rds 삭제
-    targets=session.query(Photo).filter(id__in=id_list)
+    targets=Photo.query.filter_by(photo_id__in=id_list)
     session.delete(targets)
     session.commit()
     pass
-"""
