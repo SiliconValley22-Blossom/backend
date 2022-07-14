@@ -1,2 +1,1 @@
-from .user import *
-from .photo import *
+from .Entity import User, Photo

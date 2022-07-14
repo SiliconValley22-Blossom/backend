@@ -4,7 +4,7 @@ from flask import request, send_file, Response, session
 from flask_restful import Resource
 
 from myapp.entity import Photo
-from myapp.service.photoService import get_photos_by_userid, delete_photos_by_id, upload_photos
+from myapp.service.PhotoService import get_photos_by_userid, delete_photos_by_id, upload_photos
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
