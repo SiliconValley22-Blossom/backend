@@ -4,7 +4,7 @@ from flask import request, send_file, Response, session
 from flask_restful import Resource
 
 from myapp.entity import Photo
-from myapp.service.PhotoService import get_photos_by_userid, delete_photos_by_id, upload_photos
+from myapp.service.PhotoService import get_photos_by_userid, delete_photos_by_id, upload_photos_to_s3, save_photo_to_db
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -21,31 +21,27 @@ class PhotoController(Resource):
         # userId에 해당하는 사진 조회
         # RDS에 userid에 해당하는 사진 링크받아오기
         # 컬러화된 사진만 리턴?
-        user_id=request.args.get('userId')
+        user_id = request.args.get('userId')
         get_photos_by_userid(user_id)
-        return {'dd':f'dd{user_id}'}
+        return {'dd': f'dd{user_id}'}
 
     def post(self):
-        # 사진 s3에 저장
-        # 링크 받아서 RDS에 저장
+        f = request.files['file']
+        photo_id = save_photo_to_db(f.filename, f.content_type, 1)
+        photo_info = upload_photos_to_s3(f, photo_id)
+        print(list(photo_info.items()))
+        return Response("good", status=200)
 
-        f=request.files['file']
-        #photo_info=upload_photos(f)
-        a=Photo.query.filter_by(user=1)
-        print(a[0].name)
-
-        return Response("123",status=200)
-
-    def delete(self): # 보류
+    def delete(self):  # 보류
         # body로 삭제할 아이디 리스트 받음 [1,4,5...]
-        targets=request.get_json()
-        print(type(targets['id']))
-        delete_photos_by_id(targets['id'])
+        targets = request.get_json()
+        print(targets['id'])
+        # delete_photos_by_id(targets['id'])
         return targets
 
 
 class ColorizedPhoto(Resource):
-    def get(self,id):
+    def get(self, id):
         # 컬러복원된 사진 조회
         pass
 
