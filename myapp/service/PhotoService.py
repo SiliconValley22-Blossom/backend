@@ -1,63 +1,61 @@
-from io import BytesIO
-
-from flask import Flask, session
-from PIL import Image
+from sqlalchemy import and_
 
 from myapp import db
-from myapp.entity import Photo
+from myapp.entity import Photo, User
 
-from myapp.configs import s3_connection
+from myapp.configs import s3_connection, BUCKET_NAME
+
+s3 = s3_connection()
+bucket = s3.Bucket(BUCKET_NAME)
 
 
-BUCKET_NAME="blossom"
-
-def save_photo_to_db():
-    instance=Photo(photo_id=111, name="123",fileFormat="qwe",user=2)
+def save_photo_to_db(name, fileFormat, user_id):
+    # db 저장 -> pk 반환
+    target_user = User.query.filter_by(user_id=user_id)
+    instance = Photo(name=name, fileFormat=fileFormat, user=user_id)
     db.session.add(instance)
-    db.seesion.commit()
+    db.session.commit()
+
+    db.session.refresh(instance)
+    print(instance.photo_id)
+
+    return instance.photo_id
 
 
-# s3에 이미지 저장, 조회, 삭제 / ai 이미지 변환
-def upload_photos(file):
-    s3_path='test/123'
-    s3 = s3_connection()
-    bucket = s3.Bucket(BUCKET_NAME)
-    s3.Bucket(BUCKET_NAME).put_object(
+def upload_photos_to_s3(file, photo_id):
+    s3_key = f'test/{photo_id}.{file.filename}.{file.content_type}'
+
+    bucket.put_object(
         Body=file,
-        Key=s3_path,
+        Key=s3_key,
         ContentType=file.content_type
     )
 
-    location = s3.get_bucket_location(Bucket=BUCKET_NAME)['LocationConstraint']
-    image_url = f'https://{BUCKET_NAME}.s3.{location}.amazonaws.com/{s3_path}'
 
-    image_info={}
+def get_photos_from_bucket_by_userid(user_id):
+    # target_user = User.query.filter(User.user_id.in_(user_id)).all()
+    objs = Photo.query.filter(and_(Photo.user == user_id, Photo.is_deleted == False)).with_entities(
+        Photo.photo_id).all()
+    print(objs)
 
-    image_info['filename']='test'
-    image_info['url']=image_url
-
-    return image_info
-
-
-def get_photos_by_userid(user_id):
-    obj=Photo.query.filter_by(user=user_id)
-    #objs=session.query(Photo.name).filter_by(user=user_id)
-    print(obj)
-
-    return obj
-
-
-def get_photo_from_bucket(filename):
-    target = bucket.Object('test')
-    response = target.get()
-    return response
+    return
 
 
 def delete_photos_by_id(id_list):
+    targets = Photo.query.filter(Photo.photo_id.in_(id_list))
     # s3 삭제
+    for instance in targets.all():
+        instance.is_deleted = True
+        s3_key = f'test/{instance.photo_id}.{instance.name}.{instance.fileFormat}'
+        bucket.delete_objects(
+            Delete={
+                'Objects': [
+                    {
+                        'Key': f'{str(s3_key)}'
+                    }
+                ]
+            }
+        )
 
-    # rds 삭제
-    targets=Photo.query.filter_by(photo_id__in=id_list)
-    session.delete(targets)
-    session.commit()
-    pass
+    # targets.delete()
+    db.session.commit()
