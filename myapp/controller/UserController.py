@@ -1,7 +1,6 @@
 from flask_restful import Resource, reqparse
-
+from myapp.entity.Entity import User
 from myapp.service import UserService
-
 
 class UserRequest:
     def __init__(self, data):
@@ -24,15 +23,30 @@ class UserController(Resource):
 
     def post(self):
         data = UserController.saveRequest.parse_args()
-        userRequest = UserRequest(data)
-        userService = UserService()
-        result = userService.save(userRequest)
-        return 'result', 201
+        try:
+            user_data = User.query.filter_by(username=data['username']).first()
+            if user_data is not None:
+                return "username is already exist", 400
+            userRequest = UserRequest(data)
+            userService = UserService()
+            result = userService.save(userRequest)
+            return result, 201
+        except Exception as e:
+            print(str(e))
+            return str(e), 400
 
     def delete(self):
-        # 로직
-        result = None
-        return result, 204
+        data = UserController.saveRequest.parse_args()
+        try:
+            user_data = User.query.filter_by(username=data['username']).first()
+            if user_data is not None:
+                return "username is not exist", 400
+            else:
+                UserService().delete((UserRequest(data)))
+                return "Delete successful", 201
+        except Exception as e:
+            print(str(e))
+            return str(e), 400
 
 
 class UserSingleController(Resource):
