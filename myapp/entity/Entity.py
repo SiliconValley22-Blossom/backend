@@ -8,6 +8,7 @@ class User(db.Model):
     email = db.Column(db.String(30))
     password = db.Column(db.String(30))
     nickname = db.Column(db.String(30))
+    check_deleted = db.Column(db.Boolean)
 
 
 class Photo(db.Model):
