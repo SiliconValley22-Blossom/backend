@@ -20,4 +20,5 @@ class Photo(db.Model):
     name = db.Column(db.String(30))
     fileFormat = db.Column(db.String(10))
     user = db.Column(db.Integer)
-                        #, db.ForeignKey('user.user_id'))
+    # , db.ForeignKey('user.user_id'))
+    is_deleted = db.Column(db.Boolean, default=False)

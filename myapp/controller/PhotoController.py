@@ -4,7 +4,8 @@ from flask import request, send_file, Response, session
 from flask_restful import Resource
 
 from myapp.entity import Photo
-from myapp.service.PhotoService import get_photos_by_userid, delete_photos_by_id, upload_photos_to_s3, save_photo_to_db
+from myapp.service.PhotoService import delete_photos_by_id, upload_photos_to_s3, save_photo_to_db, \
+    get_photos_from_bucket_by_userid
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -17,27 +18,25 @@ def serve_pil_image(pil_img):
 
 
 class PhotoController(Resource):
-    def get(self):
-        # userId에 해당하는 사진 조회
-        # RDS에 userid에 해당하는 사진 링크받아오기
-        # 컬러화된 사진만 리턴?
+    def get(self):  # user_id 로 사진 겟할때
         user_id = request.args.get('userId')
-        get_photos_by_userid(user_id)
+        get_photos_from_bucket_by_userid(user_id)
         return {'dd': f'dd{user_id}'}
 
     def post(self):
-        f = request.files['file']
-        photo_id = save_photo_to_db(f.filename, f.content_type, 1)
-        photo_info = upload_photos_to_s3(f, photo_id)
-        print(list(photo_info.items()))
-        return Response("good", status=200)
+        try:
+            reqFile = request.files['file']
+            photo_id = save_photo_to_db(reqFile.filename, reqFile.content_type, user_id=1)
+            upload_photos_to_s3(reqFile, photo_id)
+            return Response("good", status=200)
+        except:
+            return Response("file form-data가 존재하지 않습니다.", status=400)
 
-    def delete(self):  # 보류
-        # body로 삭제할 아이디 리스트 받음 [1,4,5...]
+
+    def delete(self):
         targets = request.get_json()
-        print(targets['id'])
-        # delete_photos_by_id(targets['id'])
-        return targets
+        delete_photos_by_id(targets['id'])
+        return Response(targets, status=204)
 
 
 class ColorizedPhoto(Resource):
@@ -45,34 +44,3 @@ class ColorizedPhoto(Resource):
         # 컬러복원된 사진 조회
         pass
 
-
-'''
-@photo.route('/image', methods=['GET', 'POST'])
-def _post():
-    if request.method == "POST":
-        file = request.files['file']
-
-        s3.Bucket(BUCKET_NAME).put_object(
-            Body=file,
-            Key="test/" + file.name,
-            ContentType=file.content_type
-        )
-        response = 201
-        return response
-    elif request.method == 'GET':
-        bucket = s3.Bucket(BUCKET_NAME)
-        filename = "newFile.png"
-        object = bucket.Object(f'test/{filename}')
-        response = object.get()
-        file_stream = response['Body']
-        img = Image.open(file_stream)
-
-        return serve_pil_image(img)
-
-
-@photo.route('/', methods=['GET']) # 컬러화된 모든 사진들 출력
-def get_all():
-    posts=get_all_posts()
-
-
-'''
