@@ -1,5 +1,6 @@
+import requests
 from sqlalchemy import and_
-
+from flask import request, send_file
 from myapp import db
 from myapp.entity import Photo, User
 
@@ -7,9 +8,10 @@ from myapp.configs import s3_connection, BUCKET_NAME
 
 s3 = s3_connection()
 bucket = s3.Bucket(BUCKET_NAME)
+reqUrl = "http://localhost:5555/image"
 
 
-def save_photo_to_db(name, fileFormat, user_id):
+def savePhotoToDB(name, fileFormat, user_id):
     # db 저장 -> pk 반환
     target_user = User.query.filter_by(user_id=user_id)
     instance = Photo(name=name, fileFormat=fileFormat, user=user_id)
@@ -22,17 +24,17 @@ def save_photo_to_db(name, fileFormat, user_id):
     return instance.photo_id
 
 
-def upload_photos_to_s3(file, photo_id):
-    s3_key = f'test/{photo_id}.{file.filename}.{file.content_type}'
+def uploadPhotosToS3(file, photo_id):
+    s3_Key = f'test/{photo_id}.{file.filename}.{file.content_type}'
 
     bucket.put_object(
         Body=file,
-        Key=s3_key,
+        Key=s3_Key,
         ContentType=file.content_type
     )
 
 
-def get_photos_from_bucket_by_userid(user_id):
+def getPhotosFromBucketByUserId(user_id):
     # target_user = User.query.filter(User.user_id.in_(user_id)).all()
     objs = Photo.query.filter(and_(Photo.user == user_id, Photo.is_deleted == False)).with_entities(
         Photo.photo_id).all()
@@ -41,7 +43,7 @@ def get_photos_from_bucket_by_userid(user_id):
     return
 
 
-def delete_photos_by_id(id_list):
+def deletePhotosById(id_list):
     targets = Photo.query.filter(Photo.photo_id.in_(id_list))
     # s3 삭제
     for instance in targets.all():
@@ -59,3 +61,16 @@ def delete_photos_by_id(id_list):
 
     # targets.delete()
     db.session.commit()
+
+
+def postBlackImage(reqFile):
+    upload={'file':reqFile}
+    return requests.post(reqUrl, files=upload)
+
+
+def serve_pil_image(np_img, format):
+    #pil_img = Image.fromarray((np_img * 255).astype(np.uint8))
+    img_io = BytesIO()
+    pil_img.save(img_io, format, quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/' + format)
