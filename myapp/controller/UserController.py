@@ -22,6 +22,7 @@ class UserController(Resource):
         return result, 200
 
     def post(self):
+
         data = UserController.saveParam.parse_args()
        # try:
            # user_data = User.query.filter_by(username=data['username']).first()
@@ -33,12 +34,13 @@ class UserController(Resource):
          #   print(str(e))
           #  return str(e), 400
 
+
     def delete(self):
         data = UserController.saveRequest.parse_args()
         try:
-            user_data = User.query.filter_by(username=data['username']).first()
-            if user_data is not None:
-                return "username is not exist", 400
+            user_data = User.query.filter_by(username=data['email']).first()
+            if user_data is None:
+                return "This email is not exist", 400
             else:
                 UserService().delete((UserRequest(data)))
                 return "Delete successful", 201
