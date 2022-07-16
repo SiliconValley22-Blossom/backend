@@ -3,7 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 db = SQLAlchemy()
-migrate=Migrate()
+migrate = Migrate()
+
 
 def create_app():
     app = Flask(__name__)
@@ -17,7 +18,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     from .entity import User, Photo
-    #db.create_all()
+    # db.create_all()
 
     routeApi(app)
 

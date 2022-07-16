@@ -1,32 +1,26 @@
-from sqlalchemy.orm import backref
-
 from myapp import db
+
 
 class User(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
 
     user_id = db.Column(db.Integer, primary_key=True)
-<<<<<<< Updated upstream
-    email = db.Column(db.String(30))
-    password = db.Column(db.String(30))
-    nickname = db.Column(db.String(30))
-
-    # photo = db.relationship('Photo', backref=backref('photo_set'))
-
-    check_deleted = db.Column(db.Boolean)
-=======
     email = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
     nickname = db.Column(db.String(30), nullable=False)
-    check_deleted = db.Column(db.Boolean, default=0)
->>>>>>> Stashed changes
+    role = db.Column(db.String(10), nullable=False, default='guest')
+
+    create_at = db.Column(db.DateTime, nullable=False)
+    update_at = db.Column(db.DateTime, nullable=False)
+    is_deleted = db.Column(db.Boolean, default=0)
 
 class Photo(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
 
     photo_id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     name = db.Column(db.String(30))
     fileFormat = db.Column(db.String(10))
-    user = db.Column(db.Integer)
-    # , db.ForeignKey('user.user_id'))
+
+    create_at = db.Column(db.DateTime, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False)
