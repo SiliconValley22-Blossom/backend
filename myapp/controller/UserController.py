@@ -1,3 +1,6 @@
+import json
+
+from flask import jsonify
 from flask_restful import Resource, reqparse
 from myapp.entity.Entity import User
 from myapp.service import UserService
@@ -8,6 +11,15 @@ class UserRequest:
         self.password = data['password']
         self.nickname = data['nickname']
 
+class UserResponse:
+    def __init__(self, data):
+        self.user_id = data.user_id
+        self.email = data.email
+        self.password = data.password
+        self.nickname = data.nickname
+
+    def toJSON(self):
+        return jsons.dumps(self)
 
 class UserController(Resource):
     # Request Fields
@@ -29,7 +41,7 @@ class UserController(Resource):
         userRequest = UserRequest(data)
         userService = UserService()
         result = userService.save(userRequest)
-        return result, 201
+        return UserResponse(result).toJSON(), 201
         #except Exception as e:
          #   print(str(e))
           #  return str(e), 400
