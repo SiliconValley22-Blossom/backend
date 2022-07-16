@@ -1,6 +1,7 @@
 from flask_restful import Api
 from .PhotoController import *
 from .UserController import *
+from .LoginController import *
 
 def routeApi(app):
     api = Api(app)
@@ -8,3 +9,4 @@ def routeApi(app):
     api.add_resource(UserSingleController, '/api/users/<int:user_id>')
     api.add_resource(PhotoController, '/api/photos')
     api.add_resource(ColorizedPhoto, '/api/photos/<int:photo_id>')
+    api.add_resource(LoginController, '/api/login')

@@ -24,9 +24,9 @@ class UserController(Resource):
     def post(self):
         data = UserController.saveRequest.parse_args()
         try:
-            user_data = User.query.filter_by(username=data['username']).first()
+            user_data = User.query.filter_by(email=data['email']).first()
             if user_data is not None:
-                return "username is already exist", 400
+                return "This email is already exist", 400
             userRequest = UserRequest(data)
             userService = UserService()
             result = userService.save(userRequest)
@@ -38,9 +38,9 @@ class UserController(Resource):
     def delete(self):
         data = UserController.saveRequest.parse_args()
         try:
-            user_data = User.query.filter_by(username=data['username']).first()
-            if user_data is not None:
-                return "username is not exist", 400
+            user_data = User.query.filter_by(username=data['email']).first()
+            if user_data is None:
+                return "This email is not exist", 400
             else:
                 UserService().delete((UserRequest(data)))
                 return "Delete successful", 201
