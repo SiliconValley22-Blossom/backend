@@ -1,11 +1,8 @@
-from sqlalchemy.sql.operators import exists
-from flask_bcrypt import Bcrypt
+import hashlib
 from myapp import db
 from myapp.entity import User
-from flask import Flask
+from myapp.util import encrypt
 
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
 
 class UserService:
     def save(self, userRequest):
@@ -14,9 +11,10 @@ class UserService:
             raise Exception("이미 존재하는 회원입니다")
         # 새로운 회원
         else:
-            pw_hash = bcrypt.generate_password_hash('userRequest.password')
+            pw_hash = encrypt(userRequest.password)
+            print(pw_hash)
         user = User(email=userRequest.email,
-                    password=pw_hash[:30],
+                    password=pw_hash,
                     nickname=userRequest.nickname)
         db.session.add(user)
         db.session.commit()
