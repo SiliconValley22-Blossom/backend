@@ -1,8 +1,10 @@
+from flask import jsonify
 from werkzeug.exceptions import Unauthorized
-
 from myapp.entity import User
 import jwt
-
+from flask_jwt_extended import (
+create_access_token, create_refresh_token
+)
 from myapp.util import checkPassword
 
 
@@ -15,9 +17,12 @@ class LoginService:
         isAuth = checkPassword(user.password, loginRequest.password)
 
         if isAuth:
-            return jwt.encode({'name': user.nickname}, "secret", algorithm="HS256")
+            access_token = create_access_token(identity=loginRequest.email)
+            refresh_token = create_refresh_token(identity=loginRequest.email)
+            return access_token, refresh_token
 
         raise Unauthorized(www_authenticate="/api/login", description="wrong password")
+
 
     # def logout(self, loginRequest):
     #     user = User(email=userRequest.email,
