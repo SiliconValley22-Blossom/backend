@@ -11,10 +11,10 @@ class UserRequest:
 
 class UserController(Resource):
     # Request Fields
-    saveRequest = reqparse.RequestParser()
-    saveRequest.add_argument('email', type=str, nullable=False, trim=True)
-    saveRequest.add_argument('nickname', type=str, nullable=False, trim=True)
-    saveRequest.add_argument('password', type=str, nullable=False, trim=True)
+    saveParam = reqparse.RequestParser()
+    saveParam.add_argument('email', type=str, nullable=False, trim=True)
+    saveParam.add_argument('nickname', type=str, nullable=False, trim=True)
+    saveParam.add_argument('password', type=str, nullable=False, trim=True)
 
     def get(self):
         # 로직
@@ -22,18 +22,18 @@ class UserController(Resource):
         return result, 200
 
     def post(self):
-        data = UserController.saveRequest.parse_args()
-        try:
-            user_data = User.query.filter_by(email=data['email']).first()
-            if user_data is not None:
-                return "This email is already exist", 400
-            userRequest = UserRequest(data)
-            userService = UserService()
-            result = userService.save(userRequest)
-            return result, 201
-        except Exception as e:
-            print(str(e))
-            return str(e), 400
+
+        data = UserController.saveParam.parse_args()
+       # try:
+           # user_data = User.query.filter_by(username=data['username']).first()
+        userRequest = UserRequest(data)
+        userService = UserService()
+        result = userService.save(userRequest)
+        return result, 201
+        #except Exception as e:
+         #   print(str(e))
+          #  return str(e), 400
+
 
     def delete(self):
         data = UserController.saveRequest.parse_args()
