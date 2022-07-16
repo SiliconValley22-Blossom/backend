@@ -4,5 +4,8 @@ WORKDIR /backend
 COPY requirements.txt /backend/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN flask db init
+RUN flask db migrate
+RUN flask db upgrade
 
 COPY . /backend/
