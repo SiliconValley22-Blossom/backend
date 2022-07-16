@@ -3,6 +3,7 @@ from .PhotoController import *
 from .UserController import *
 from .LoginController import *
 
+
 def routeApi(app):
     api = Api(app)
     api.add_resource(UserController, '/api/users')
@@ -10,3 +11,21 @@ def routeApi(app):
     api.add_resource(PhotoController, '/api/photos')
     api.add_resource(ColorizedPhoto, '/api/photos/<int:photo_id>')
     api.add_resource(LoginController, '/api/login')
+
+
+from werkzeug.wrappers import Request
+from werkzeug.wsgi import responder
+from werkzeug.exceptions import HTTPException, NotFound
+
+
+def view(request):
+    raise NotFound()
+
+
+@responder
+def application(environ, start_response):
+    request = Request(environ)
+    try:
+        return view(request)
+    except HTTPException as e:
+        return e
