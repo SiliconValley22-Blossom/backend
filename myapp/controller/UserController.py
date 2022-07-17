@@ -1,5 +1,6 @@
 import json
 
+from flask import Response
 from flask_restful import Resource, reqparse
 from myapp.entity.Entity import User
 from myapp.service import UserService
@@ -31,33 +32,20 @@ class UserController(Resource):
     def post(self):
 
         data = UserController.saveParam.parse_args()
-       # try:
-           # user_data = User.query.filter_by(username=data['username']).first()
+
         userRequest = UserRequest(data)
         userService = UserService()
         result = userService.save(userRequest)
         return UserResponse(result).__dict__, 201
-        #except Exception as e:
-         #   print(str(e))
-          #  return str(e), 400
-
-
-    def delete(self):
-        data = UserController.saveRequest.parse_args()
-        try:
-            user_data = User.query.filter_by(username=data['email']).first()
-            if user_data is None:
-                return "This email is not exist", 400
-            else:
-                UserService().delete((UserRequest(data)))
-                return "Delete successful", 201
-        except Exception as e:
-            print(str(e))
-            return str(e), 400
-
 
 class UserSingleController(Resource):
     def get(self, user_id):
         # 로직
         result = user_id
         return result, 200
+
+    def delete(self, user_id):
+        userService = UserService()
+        userService.deleteById(user_id)
+
+        return Response(status=204)
