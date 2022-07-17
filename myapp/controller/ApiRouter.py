@@ -1,7 +1,11 @@
 from flask_restful import Api
+
+from .AccessController import AccessController
 from .PhotoController import *
+from .RefreshController import RefreshController
 from .UserController import *
 from .LoginController import *
+
 
 def routeApi(app):
     api = Api(app)
@@ -10,4 +14,22 @@ def routeApi(app):
     api.add_resource(PhotoController, '/api/photos')
     api.add_resource(ColorizedPhoto, '/api/photos/<int:photoId>')
     api.add_resource(LoginController, '/api/login')
+    api.add_resource(AccessController, '/api/access')
+    api.add_resource(RefreshController, '/api/refresh')
+
+from werkzeug.wrappers import Request
+from werkzeug.wsgi import responder
+from werkzeug.exceptions import HTTPException, NotFound
+
+
+def view(request):
+    raise NotFound()
+
+@responder
+def application(environ, start_response):
+    request = Request(environ)
+    try:
+        return view(request)
+    except HTTPException as e:
+        return e
 

@@ -1,6 +1,10 @@
+from flask import jsonify
+from werkzeug.exceptions import Unauthorized
 from myapp.entity import User
 import jwt
-
+from flask_jwt_extended import (
+create_access_token, create_refresh_token
+)
 from myapp.util import checkPassword
 
 
@@ -8,21 +12,16 @@ class LoginService:
     def login(self, loginRequest):
         user = User.query.filter_by(email=loginRequest.email).first()
         if not user:
-            return {
-                       "message": "User Not Found"
-                   }, 404
+            raise Unauthorized(www_authenticate="/api/login", description="invalid ID")
 
         isAuth = checkPassword(user.password, loginRequest.password)
 
-        if isAuth: # 암호화 후 비밀번호 비교하여 일치하면 토큰 발행
-            return {
-                       'Authorization': jwt.encode({'name': user.nickname}, "secret", algorithm="HS256")
-                       # str으로 반환하여 return
-                   }, 200
+        if isAuth:
+            access_token = create_access_token(identity=loginRequest.email)
+            refresh_token = create_refresh_token(identity=loginRequest.email)
+            return access_token, refresh_token
 
-        return {
-               "message": "Auth Failed"
-        }, 500
+        raise Unauthorized(www_authenticate="/api/login", description="wrong password")
 
 
     # def logout(self, loginRequest):
