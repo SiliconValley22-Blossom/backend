@@ -23,6 +23,8 @@ class Photo(db.Model):
     user = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     name = db.Column(db.String(30))
     fileFormat = db.Column(db.String(10))
+    url = db.Column(db.String(100))
+    is_black = db.Column(db.Boolean)
 
-    create_at = db.Column(db.DateTime, nullable=False)
+    create_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_deleted = db.Column(db.Boolean, default=False)
