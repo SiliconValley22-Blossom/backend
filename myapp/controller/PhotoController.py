@@ -4,8 +4,8 @@ from flask import request, send_file, Response, session
 from flask_restful import Resource
 
 from myapp.entity import Photo
-from myapp.service.PhotoService import delete_photos_by_id, upload_photos_to_s3, save_photo_to_db, \
-    get_photos_from_bucket_by_userid
+from myapp.service.PhotoService import deletePhotosById, uploadPhotosToS3, savePhotoToDB, \
+    getPhotosFromBucketByUserId, postBlackImage
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -20,27 +20,30 @@ def serve_pil_image(pil_img):
 class PhotoController(Resource):
     def get(self):  # user_id 로 사진 겟할때
         user_id = request.args.get('userId')
-        get_photos_from_bucket_by_userid(user_id)
+        getPhotosFromBucketByUserId(user_id)
         return {'dd': f'dd{user_id}'}
 
     def post(self):
         try:
             reqFile = request.files['file']
-            photo_id = save_photo_to_db(reqFile.filename, reqFile.content_type, user_id=1)
+            photo_id = savePhotoToDB(reqFile.filename, reqFile.content_type, user_id=1)
             upload_photos_to_s3(reqFile, photo_id)
             return Response("good", status=200)
         except:
             return Response("file form-data가 존재하지 않습니다.", status=400)
 
-
     def delete(self):
         targets = request.get_json()
-        delete_photos_by_id(targets['id'])
+        deletePhotosById(targets['id'])
         return Response(targets, status=204)
 
 
 class ColorizedPhoto(Resource):
-    def get(self, id):
+    def get(self, photoId):
         # 컬러복원된 사진 조회
         pass
 
+    def post(self, photoId):
+        # 흑백 사진 컬러사진 복원 후 response
+        reqFile = request.files['file']
+        return Response(postBlackImage(reqFile), content_type='image/jpeg')
