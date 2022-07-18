@@ -1,6 +1,7 @@
 from io import BytesIO
 
 import requests
+from celery import Celery
 from sqlalchemy import and_
 from flask import request, send_file
 from myapp import db
@@ -8,11 +9,14 @@ from myapp.entity import Photo, User
 from PIL import Image
 import uuid
 
-from myapp.configs import s3_connection, BUCKET_NAME, s3GetClient
+from myapp.configs import s3_connection, BUCKET_NAME
 
 s3 = s3_connection()
 bucket = s3.Bucket(BUCKET_NAME)
 AI_SERVER_URL = "http://localhost:5555/image"
+
+app = Celery('tasks',
+             broker='amqp://guest:guest@127.0.0.1:5672//')
 
 def savePhoto(file, userId):
     fileFormat = file.content_type.split("/")[1]
@@ -31,9 +35,11 @@ def savePhoto(file, userId):
 
     db.session.commit()
     # ai 셀러리 요청 (그 다음은 비동기처리)
-    colorized(black_uuid, color_uuid, fileFormat)
+    colorized.delay(black_uuid, color_uuid, fileFormat)
 
-def colorized(blackPhotoId, colorPhotoId, fileFormat) :
+@app.task
+def colorized(blackPhotoId, colorPhotoId, fileFormat):
+
     blackImage = bucket.Object(f'black/{blackPhotoId}.{fileFormat}').get()['Body']
 
     upload = {'file': imageToByte(blackImage, fileFormat)}
