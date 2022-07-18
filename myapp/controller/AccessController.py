@@ -1,7 +1,12 @@
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_restful import Resource, reqparse
+from flask_restful import reqparse
+from flask_restx import Namespace, Resource
 
+nsAccess = Namespace('api/access')
+
+
+@nsAccess.route('')
 class AccessController(Resource):
     # Request Fields
     saveRequest = reqparse.RequestParser()
