@@ -14,6 +14,7 @@ def routeApi(api):
     api.add_resource(AccessController, '/api/access')
     api.add_resource(RefreshController, '/api/refresh')
 
+
 from werkzeug.wrappers import Request
 from werkzeug.wsgi import responder
 from werkzeug.exceptions import HTTPException, NotFound
@@ -22,6 +23,7 @@ from werkzeug.exceptions import HTTPException, NotFound
 def view(request):
     raise NotFound()
 
+
 @responder
 def application(environ, start_response):
     request = Request(environ)
@@ -29,4 +31,3 @@ def application(environ, start_response):
         return view(request)
     except HTTPException as e:
         return e
-

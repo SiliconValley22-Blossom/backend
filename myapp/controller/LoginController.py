@@ -1,6 +1,14 @@
-from flask_restful import Resource, reqparse
+from flask_restful import reqparse
 from myapp.entity.Entity import User
 from myapp.service import LoginService
+from flask_restx import Namespace, Resource, fields
+
+nsLogin = Namespace('api/login')
+
+login = nsLogin.model('Login',{
+    "email":fields.String(required=True),
+    "password":fields.String(required=True)
+})
 
 
 class LoginRequest:
@@ -14,19 +22,21 @@ class LoginResponse:
         self.Authorization = data
 
 
+@nsLogin.route('')
 class LoginController(Resource):
     # Request Fields
-    saveRequest = reqparse.RequestParser()
-    saveRequest.add_argument('email', type=str, nullable=False, trim=True)
-    saveRequest.add_argument('password', type=str, nullable=False, trim=True)
+    requestParser = reqparse.RequestParser()
+    requestParser.add_argument('email', type=str, nullable=False, trim=True)
+    requestParser.add_argument('password', type=str, nullable=False, trim=True)
 
     def get(self):
         # 로직
         result = 'group'
         return result, 200
 
+    @nsLogin.expect(login)
     def post(self):
-        data = LoginController.saveRequest.parse_args()
+        data = LoginController.requestParser.parse_args()
         # try:
         loginRequest = LoginRequest(data)
         loginService = LoginService.LoginService()

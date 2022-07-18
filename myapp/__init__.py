@@ -5,11 +5,9 @@ from flask_jwt_extended import (
 JWTManager, jwt_required, create_access_token, create_refresh_token,
 get_jwt_identity, unset_jwt_cookies
 )
-
+from flask_restx import Api as DocApi
 from flask_restful import Resource, Api, fields, marshal_with
-#from apispec import APISpec
-#from apispec.ext.marshmallow import MarshmallowPlugin
-#from flask_apispec.extension import FlaskApiSpec
+
 # import Config
 
 db = SQLAlchemy()
@@ -18,8 +16,7 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
-    api = Api(app)
-
+    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api-docs')
 
     from .configs import getURI
     from .controller import routeApi
@@ -37,19 +34,16 @@ def create_app():
     from .entity import User, Photo
     # db.create_all()
 
-    routeApi(api)
-
-    '''
-    app.config.update({
-        "APISPEC_SPEC" : APISpec(
-            title='Colorization Project',
-            version='1.0',
-            plugins=[MarshmallowPlugin()],
-            openapi_version='2.0.0'
-        ),
-        'APISPEC_SWAGGER_URL':'/swagger/',
-        'APISPEC_SWAGGER_UI_URL':'/swagger-ui/'
-    })
-    '''
+    routeApi(doc_api)
+    from .controller.PhotoController import nsPhoto
+    from .controller.UserController import nsUser
+    from .controller.RefreshController import nsRefresh
+    from .controller.LoginController import nsLogin
+    from .controller.AccessController import nsAccess
+    doc_api.add_namespace(nsPhoto)
+    doc_api.add_namespace(nsUser)
+    doc_api.add_namespace(nsRefresh)
+    doc_api.add_namespace(nsLogin)
+    doc_api.add_namespace(nsAccess)
 
     return app

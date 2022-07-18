@@ -1,3 +1,6 @@
+
+import uuid
+
 from io import BytesIO
 
 import requests
@@ -7,9 +10,10 @@ from flask import request, send_file
 from myapp import db
 from myapp.entity import Photo, User
 from PIL import Image
-import uuid
 
+from myapp import db
 from myapp.configs import s3_connection, BUCKET_NAME
+from myapp.entity import Photo
 
 s3 = s3_connection()
 bucket = s3.Bucket(BUCKET_NAME)
@@ -20,15 +24,19 @@ app = Celery('tasks',
 
 def savePhoto(file, userId):
     fileFormat = file.content_type.split("/")[1]
+    
     # DB에 file 정보 저장
-    black_uuid = uuid.uuid4()
-    instance_black = Photo(name=file.filename, fileFormat=fileFormat, user=userId, url=black_uuid, is_black=True)
-    db.session.add(instance_black)
+    color_uuid = str(uuid.uuid4()) + "." + fileFormat
+    instance_color = Photo(name="color_" + file.filename, fileFormat=file.content_type, user=userId, url=color_uuid)
 
-    color_uuid = uuid.uuid4()
-    instance_color = Photo(name="color_" + file.filename, fileFormat=fileFormat, user=userId, url=color_uuid,
-                           is_black=False)
     db.session.add(instance_color)
+    db.session.commit()
+    db.session.refresh(instance_color)
+
+    black_uuid = str(uuid.uuid4()) + "." + fileFormat
+    instance_black = Photo(name=file.filename, fileFormat=file.content_type, user=userId, url=black_uuid,
+                           color_id=instance_color.photo_id)
+    db.session.add(instance_black)
 
     # s3 흑백사진 저장
     uploadPhotosToS3(file, fileFormat, black_uuid, "black")
@@ -62,10 +70,16 @@ def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
 
 def getPhotosFromBucketByUserId(user_id):
     # target_user = User.query.filter(User.user_id.in_(user_id)).all()
-    objs = Photo.query.filter(
-        and_(Photo.user == user_id, Photo.is_deleted == False, Photo.is_black == False)).with_entities(
-        Photo.url).order_by(Photo.create_at.desc()).all()
-    return objs
+    sql_query = "select p1.url as black_url, p2.url as color_url \
+        from photo p1 join photo p2 \
+        where p1.user=1 and p1.is_deleted=0 and p1.color_id=p2.photo_id \
+        order by p1.created_at desc"
+    cursor = db.session.execute(sql_query)
+
+    results = cursor.fetchall()  # (흑백사진 url, 컬러사진 url)
+    results = [list(row) for row in results]
+
+    return {"url_list": results}
 
 
 def deletePhotosById(id_list):

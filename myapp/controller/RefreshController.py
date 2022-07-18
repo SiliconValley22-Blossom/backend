@@ -1,12 +1,17 @@
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
-from flask_restful import Resource, reqparse
+from flask_restful import reqparse
+from flask_restx import Namespace, Resource
 
+nsRefresh = Namespace('api/refresh')
+
+
+@nsRefresh.route("")
 class RefreshController(Resource):
     # Request Fields
-    saveRequest = reqparse.RequestParser()
-    saveRequest.add_argument('email', type=str, nullable=False, trim=True)
-    saveRequest.add_argument('password', type=str, nullable=False, trim=True)
+    requestParser = reqparse.RequestParser()
+    requestParser.add_argument('email', type=str, nullable=False, trim=True)
+    requestParser.add_argument('password', type=str, nullable=False, trim=True)
 
     @jwt_required(refresh=True)
     def get(self):
