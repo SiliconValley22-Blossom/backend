@@ -1,6 +1,14 @@
+
 import uuid
 
+from io import BytesIO
+
 import requests
+from celery import Celery
+from sqlalchemy import and_
+from flask import request, send_file
+from myapp import db
+from myapp.entity import Photo, User
 from PIL import Image
 
 from myapp import db
@@ -11,36 +19,52 @@ s3 = s3_connection()
 bucket = s3.Bucket(BUCKET_NAME)
 AI_SERVER_URL = "http://localhost:5555/image"
 
+app = Celery('tasks',
+             broker='amqp://guest:guest@127.0.0.1:5672//')
 
 def savePhoto(file, userId):
+    fileFormat = file.content_type.split("/")[1]
+    
     # DB에 file 정보 저장
-    color_uuid = str(uuid.uuid4()) + "." + file.content_type.split("/")[1]
+    color_uuid = str(uuid.uuid4()) + "." + fileFormat
     instance_color = Photo(name="color_" + file.filename, fileFormat=file.content_type, user=userId, url=color_uuid)
+
     db.session.add(instance_color)
     db.session.commit()
     db.session.refresh(instance_color)
 
-    black_uuid = str(uuid.uuid4()) + "." + file.content_type.split("/")[1]
+    black_uuid = str(uuid.uuid4()) + "." + fileFormat
     instance_black = Photo(name=file.filename, fileFormat=file.content_type, user=userId, url=black_uuid,
                            color_id=instance_color.photo_id)
     db.session.add(instance_black)
 
     # s3 흑백사진 저장
-    uploadPhotosToS3(file, black_uuid, "black")
+    uploadPhotosToS3(file, fileFormat, black_uuid, "black")
 
     db.session.commit()
     # ai 셀러리 요청 (그 다음은 비동기처리)
+    colorized.delay(black_uuid, color_uuid, fileFormat)
+
+@app.task
+def colorized(blackPhotoId, colorPhotoId, fileFormat):
+
+    blackImage = bucket.Object(f'black/{blackPhotoId}.{fileFormat}').get()['Body']
+
+    upload = {'file': imageToByte(blackImage, fileFormat)}
+
+    colorImage = requests.post(AI_SERVER_URL, files=upload)
+    uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId, 'color')
 
 
-def uploadPhotosToS3(file, p_uuid, flag):
-    format = file.content_type.split("/")[1]
-    print(format)
-    s3_Key = f'{flag}/{p_uuid}.{format}'
+
+
+def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
+    s3_Key = f'{flag}/{p_uuid}.{fileFormat}'
 
     bucket.put_object(
         Body=file,
         Key=s3_Key,
-        ContentType=file.content_type
+        ContentType=fileFormat
     )
 
 
@@ -85,8 +109,10 @@ def postBlackImage(reqFile):
 
 
 def imageToByte(image_file, format):
+    print(image_file)
     image = Image.open(image_file)
     buffer = BytesIO()
     image.save(buffer, format, quality=70)
     buffer.seek(0)
+    print(buffer)
     return buffer
