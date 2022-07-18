@@ -29,7 +29,7 @@ class PhotoController(Resource):
     def post(self):
         reqFile = request.files['file']
         savePhoto(reqFile, userId=1)
-        return Response("good", status=200)
+        return Response("created", status=201)
 
     def delete(self):
         targets = request.get_json()
@@ -42,7 +42,3 @@ class ColorizationController(Resource):
         # 컬러복원된 사진 조회
         pass
 
-    def post(self, photo_id):
-        # 흑백 사진 컬러사진 복원 후 response
-        reqFile = request.files['file']
-        return Response(postBlackImage(reqFile), content_type='image/jpeg')
