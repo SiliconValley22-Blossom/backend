@@ -1,15 +1,10 @@
-
 import uuid
-
 from io import BytesIO
 
 import requests
+from PIL import Image
 from celery import Celery
 from sqlalchemy import and_
-from flask import request, send_file
-from myapp import db
-from myapp.entity import Photo, User
-from PIL import Image
 
 from myapp import db
 from myapp.configs import s3_connection, BUCKET_NAME
@@ -45,6 +40,7 @@ def savePhoto(file, userId):
     # ai 셀러리 요청 (그 다음은 비동기처리)
     colorized.delay(black_uuid, color_uuid, fileFormat)
 
+
 @app.task
 def colorized(blackPhotoId, colorPhotoId, fileFormat):
 
@@ -54,8 +50,6 @@ def colorized(blackPhotoId, colorPhotoId, fileFormat):
 
     colorImage = requests.post(AI_SERVER_URL, files=upload)
     uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId, 'color')
-
-
 
 
 def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
@@ -116,3 +110,10 @@ def imageToByte(image_file, format):
     buffer.seek(0)
     print(buffer)
     return buffer
+
+
+def getPhotoByPhotoId(photo_id):
+    target = Photo.query.filter(and_(Photo.is_deleted == False, Photo.photo_id == photo_id)).with_entities(
+        Photo.url).first()[0]
+    dic={"url":str(target)}
+    return dic

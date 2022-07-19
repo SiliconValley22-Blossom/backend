@@ -3,7 +3,7 @@ from flask_restx import Namespace
 from flask_restx import Resource
 
 from myapp.service.PhotoService import deletePhotosById, savePhoto, \
-    getPhotosFromBucketByUserId, postBlackImage
+    getPhotosFromBucketByUserId, getPhotoByPhotoId
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -33,8 +33,8 @@ class PhotoController(Resource):
 
 
 @nsPhoto.route('/<int:photo_id>')
-class ColorizationController(Resource):
+class PhotoSingleController(Resource):
     def get(self, photo_id):
-        """컬러복원된 사진 조회"""
-        pass
-
+        """photo_id에 해당하는 사진 단일 조회"""
+        result = getPhotoByPhotoId(photo_id)
+        return result, 200
