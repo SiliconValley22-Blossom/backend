@@ -1,8 +1,9 @@
 import boto3
+import os
 
-BUCKET_NAME = "blossom"
-AWS_ACCESS_KEY_ID = "."
-AWS_SECERET_ACCESS_KEY = "."
+BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('S3_ID')
+AWS_SECERET_ACCESS_KEY = os.environ.get('S3_SECRET_KEY')
 
 
 def s3_connection():

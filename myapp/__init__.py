@@ -29,8 +29,15 @@ def create_app():
 
     jwt = JWTManager(app)
 
+    # db.init_app(app)
+    # migrate.init_app(app, db)
+    app.app_context().push()
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate = Migrate(app, db)
+    # flask-migrate 적용
+    db.create_all()
+
+
     from .entity import User, Photo
     # db.create_all()
 
