@@ -1,3 +1,5 @@
+from flask import jsonify
+from flask_jwt_extended import set_access_cookies, set_refresh_cookies
 from flask_restful import reqparse
 from myapp.entity.Entity import User
 from myapp.service import LoginService
@@ -40,5 +42,13 @@ class LoginController(Resource):
         # try:
         loginRequest = LoginRequest(data)
         loginService = LoginService.LoginService()
-        result = loginService.login(loginRequest)
-        return LoginResponse(result).__dict__
+        access,refresh = loginService.login(loginRequest)
+        resp = jsonify({
+            'access_token': access,
+            'refresh_token': refresh
+        })
+        set_access_cookies(resp, access)
+        set_refresh_cookies(resp, refresh)
+        return resp
+
+        # return LoginResponse(result).__dict__
