@@ -115,5 +115,5 @@ def imageToByte(image_file, format):
 def getPhotoByPhotoId(photo_id):
     target = Photo.query.filter(and_(Photo.is_deleted == False, Photo.photo_id == photo_id)).with_entities(
         Photo.url).first()[0]
-    dic={"url":str(target)}
+    dic={"photo":str(target)}
     return dic

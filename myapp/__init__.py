@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_cors import CORS
 from flask_jwt_extended import (
 JWTManager, jwt_required, create_access_token, create_refresh_token,
 get_jwt_identity, unset_jwt_cookies
@@ -9,9 +10,11 @@ from flask_restx import Api as DocApi
 from flask_restful import Resource, Api, fields, marshal_with
 
 # import Config
+from prometheus_flask_exporter import PrometheusMetrics
 
 db = SQLAlchemy()
 migrate = Migrate()
+
 
 
 def create_app():
@@ -26,6 +29,14 @@ def create_app():
     # app.config['JWT_SECRET_KEY'] = Config.key
     # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.access
     # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.refresh
+    metrics = PrometheusMetrics(app)
+
+    metrics.register_default(
+        metrics.counter(
+            'by_path_counter', 'Request count by request paths',
+            labels={'path': lambda: request.path}
+        )
+    )
 
     jwt = JWTManager(app)
 
@@ -52,5 +63,6 @@ def create_app():
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
     doc_api.add_namespace(nsAccess)
+    CORS(app, supports_credentials=True)
 
     return app
