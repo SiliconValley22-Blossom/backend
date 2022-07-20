@@ -12,9 +12,11 @@ from flask_restful import Resource, Api, fields, marshal_with
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
 
+import redis
+
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.StrictRedis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
+jwt_redis = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
 
 
 
@@ -65,7 +67,7 @@ def create_app():
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
     doc_api.add_namespace(nsAccess)
-    doc_api.add_namespace(nsAdmin)
+    # doc_api.add_namespace(nsAdmin)
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
 
