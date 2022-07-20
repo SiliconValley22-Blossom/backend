@@ -1,8 +1,10 @@
-DB_USERNAME = 'root'
-DB_PASSWORD = '123qwe'
-DB_HOST = 'localhost'
-DB_SCHEMA = 'test_blossom'
-DB_PORT = '3306'
+import os
+
+DB_USERNAME = os.environ.get('RDS_NAME')
+DB_PASSWORD = os.environ.get('RDS_PASSWORD')
+DB_HOST = os.environ.get('RDS_ENDPOINT')
+DB_SCHEMA = os.environ.get('RDS_DATABASE')
+DB_PORT = os.environ.get('RDS_PORT')
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

@@ -1,6 +1,5 @@
 import uuid
 from io import BytesIO
-
 import requests
 from PIL import Image
 from celery import Celery
@@ -10,16 +9,18 @@ from myapp import db
 from myapp.configs import s3_connection, BUCKET_NAME
 from myapp.entity import Photo
 
+from myapp.configs import COLORIZED_API, RBMQ_CONNECTION_URI
+
 s3 = s3_connection()
 bucket = s3.Bucket(BUCKET_NAME)
-AI_SERVER_URL = "http://localhost:5555/image"
 
 app = Celery('tasks',
-             broker='amqp://guest:guest@127.0.0.1:5672//')
+             broker=RBMQ_CONNECTION_URI)
+
 
 def savePhoto(file, userId):
     fileFormat = file.content_type.split("/")[1]
-    
+
     # DB에 file 정보 저장
     color_uuid = str(uuid.uuid4()) + "." + fileFormat
     instance_color = Photo(name="color_" + file.filename, fileFormat=file.content_type, user=userId, url=color_uuid)
@@ -43,12 +44,11 @@ def savePhoto(file, userId):
 
 @app.task
 def colorized(blackPhotoId, colorPhotoId, fileFormat):
-
     blackImage = bucket.Object(f'black/{blackPhotoId}.{fileFormat}').get()['Body']
 
     upload = {'file': imageToByte(blackImage, fileFormat)}
 
-    colorImage = requests.post(AI_SERVER_URL, files=upload)
+    colorImage = requests.post(COLORIZED_API, files=upload)
     uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId, 'color')
 
 
@@ -99,7 +99,7 @@ def deletePhotosById(id_list):
 
 def postBlackImage(reqFile):
     upload = {'file': reqFile}
-    return requests.post(AI_SERVER_URL, files=upload)
+    return requests.post(COLORIZED_API, files=upload)
 
 
 def imageToByte(image_file, format):

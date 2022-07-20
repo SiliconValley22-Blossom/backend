@@ -1,5 +1,10 @@
+
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_cors import CORS
 import redis
-from flask import Flask, jsonify
+
 from flask_jwt_extended import (
     JWTManager
 )
@@ -8,10 +13,14 @@ from flask_restx import Api as DocApi
 from flask_sqlalchemy import SQLAlchemy
 
 # import Config
+from prometheus_flask_exporter import PrometheusMetrics
+
+import redis
 
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.StrictRedis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
+jwt_redis = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
+
 
 
 def create_app():
@@ -26,11 +35,26 @@ def create_app():
     # app.config['JWT_SECRET_KEY'] = Config.key
     # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.access
     # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.refresh
+    metrics = PrometheusMetrics(app)
+
+    metrics.register_default(
+        metrics.counter(
+            'by_path_counter', 'Request count by request paths',
+            labels={'path': lambda: request.path}
+        )
+    )
 
     jwt = JWTManager(app)
 
+    # db.init_app(app)
+    # migrate.init_app(app, db)
+    app.app_context().push()
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate = Migrate(app, db)
+    # flask-migrate 적용
+    db.create_all()
+
+
     from .entity import User, Photo
     # db.create_all()
 
@@ -46,8 +70,9 @@ def create_app():
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
     doc_api.add_namespace(nsAccess)
-    doc_api.add_namespace(nsAdmin)
+    # doc_api.add_namespace(nsAdmin)
     doc_api.add_namespace(nsLogout)
+    CORS(app, supports_credentials=True)
 
 
     return app
