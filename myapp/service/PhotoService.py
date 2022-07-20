@@ -62,18 +62,18 @@ def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
     )
 
 
-def getPhotosFromBucketByUserId(user_id):
-    # target_user = User.query.filter(User.user_id.in_(user_id)).all()
-    sql_query = "select p1.url as black_url, p2.url as color_url \
-        from photo p1 join photo p2 \
-        where p1.user=1 and p1.is_deleted=0 and p1.color_id=p2.photo_id \
-        order by p1.created_at desc"
+def getPhotosFromBucketByEmail(email):
+    sql_query = f"select p1.url as black_url, p2.url as color_url \
+                from photo p1 join photo p2 \
+                where p1.user=(select user_id from user where email='{email}')\
+                 and p1.is_deleted=0 and p1.color_id=p2.photo_id\
+                order by p1.created_at desc"
     cursor = db.session.execute(sql_query)
 
     results = cursor.fetchall()  # (흑백사진 url, 컬러사진 url)
     results = [list(row) for row in results]
 
-    return {"url_list": results}
+    return {"photo_list": results}
 
 
 def deletePhotosById(id_list):

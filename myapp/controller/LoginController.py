@@ -31,11 +31,6 @@ class LoginController(Resource):
     requestParser.add_argument('email', type=str, nullable=False, trim=True)
     requestParser.add_argument('password', type=str, nullable=False, trim=True)
 
-    def get(self):
-        # 로직
-        result = 'group'
-        return result, 200
-
     @nsLogin.expect(login)
     def post(self):
         data = LoginController.requestParser.parse_args()

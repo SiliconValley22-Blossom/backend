@@ -14,6 +14,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 db = SQLAlchemy()
 migrate = Migrate()
+jwt_redis = redis.StrictRedis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
 
 
 
@@ -57,12 +58,16 @@ def create_app():
     from .controller.UserController import nsUser
     from .controller.RefreshController import nsRefresh
     from .controller.LoginController import nsLogin
+    from .controller.LogoutController import nsLogout
     from .controller.AccessController import nsAccess
     doc_api.add_namespace(nsPhoto)
     doc_api.add_namespace(nsUser)
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
     doc_api.add_namespace(nsAccess)
+    doc_api.add_namespace(nsAdmin)
+    doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
+
 
     return app
