@@ -1,10 +1,10 @@
 from flask import request, Response
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Namespace
 from flask_restx import Resource
 
 from myapp.service.PhotoService import deletePhotosById, savePhoto, \
-    getPhotosFromBucketByUserId, getPhotoByPhotoId
+    getPhotosFromBucketByEmail, getPhotoByPhotoId
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -13,12 +13,11 @@ nsPhoto = Namespace('api/photos')
 
 @nsPhoto.route('')
 class PhotoController(Resource):
-    @nsPhoto.param('userId')  # Integer로 바꿔야 함ㅠ
     @jwt_required(locations=['cookies'])
     def get(self):
         """User ID에 해당하는 사진을 조회한다."""
-        user_id = request.args.get('userId')
-        url_list = getPhotosFromBucketByUserId(user_id)
+        email=get_jwt_identity()
+        url_list = getPhotosFromBucketByEmail(email)
         return url_list
 
     def post(self):
@@ -36,7 +35,7 @@ class PhotoController(Resource):
 
 @nsPhoto.route('/<int:photo_id>')
 class PhotoSingleController(Resource):
-    @jwt_required()
+    @jwt_required(locations=['cookies'])
     def get(self, photo_id):
         """photo_id에 해당하는 사진 단일 조회"""
         result = getPhotoByPhotoId(photo_id)
