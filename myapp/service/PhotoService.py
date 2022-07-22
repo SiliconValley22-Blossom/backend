@@ -33,13 +33,19 @@ def savePhoto(file, userId):
     instance_black = Photo(name=file.filename, fileFormat=file.content_type, user=userId, url=black_uuid,
                            color_id=instance_color.photo_id)
     db.session.add(instance_black)
+    db.session.commit()
+    db.session.refresh(instance_black)
 
     # s3 흑백사진 저장
     uploadPhotosToS3(file, fileFormat, black_uuid, "black")
 
-    db.session.commit()
+    
+
     # ai 셀러리 요청 (그 다음은 비동기처리)
     colorized.delay(black_uuid, color_uuid, fileFormat)
+
+    return {"black_photo_id":instance_black.photo_id,
+     "color_photo_id":instance_color.photo_id}
 
 
 @app.task
