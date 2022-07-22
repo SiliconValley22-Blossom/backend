@@ -23,8 +23,8 @@ class PhotoController(Resource):
     def post(self):
         """클라이언트로부터 요청받은 흑백사진을 저장하고 컬러화한다."""
         reqFile = request.files['file']
-        savePhoto(reqFile, userId=1)
-        return Response("created", status=201)
+        result = savePhoto(reqFile, userId=1)
+        return Response(result, status=201)
 
     def delete(self):
         """요청받은 사진을 삭제 처리한다."""
