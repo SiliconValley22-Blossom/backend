@@ -16,18 +16,19 @@ from configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
+import datetime
 
 import redis
 
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
+jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 
 
 def create_app():
     app = Flask(__name__)
-    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api-docs')
+    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api/docs')
 
     from .configs import getURI
     from .controller import routeApi
