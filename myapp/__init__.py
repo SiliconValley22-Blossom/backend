@@ -8,6 +8,7 @@ get_jwt_identity, unset_jwt_cookies
 )
 from flask_restx import Api as DocApi
 from flask_restful import Resource, Api, fields, marshal_with
+from configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
@@ -29,9 +30,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    # app.config['JWT_SECRET_KEY'] = Config.key
-    # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.access
-    # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.refresh
+    app.config['JWT_SECRET_KEY'] = JWT_KEY
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
     metrics = PrometheusMetrics(app)
 
     metrics.register_default(
