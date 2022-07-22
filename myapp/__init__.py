@@ -14,27 +14,28 @@ from flask_sqlalchemy import SQLAlchemy
 
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
+import datetime
 
 import redis
 
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
+jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 
 
 def create_app():
     app = Flask(__name__)
-    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api-docs')
+    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api/docs')
 
     from .configs import getURI
     from .controller import routeApi
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    # app.config['JWT_SECRET_KEY'] = Config.key
-    # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.access
-    # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.refresh
+    app.config['JWT_SECRET_KEY'] = "secret123!@#"
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=14)
     metrics = PrometheusMetrics(app)
 
     metrics.register_default(
