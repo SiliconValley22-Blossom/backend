@@ -25,7 +25,7 @@ class LoginService:
             access_token = create_access_token(identity=loginRequest.email)
             refresh_token = create_refresh_token(identity=loginRequest.email)
 
-            jwt_redis.set(loginRequest.email, refresh_token, ex=timedelta(seconds=5))
+            jwt_redis.set(loginRequest.email, refresh_token, ex=timedelta(days=14))
 
             return access_token, refresh_token
 

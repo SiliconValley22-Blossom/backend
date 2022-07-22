@@ -1,12 +1,16 @@
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+import redis
+
 from flask_jwt_extended import (
-JWTManager, jwt_required, create_access_token, create_refresh_token,
-get_jwt_identity, unset_jwt_cookies
+    JWTManager
 )
+from flask_migrate import Migrate
 from flask_restx import Api as DocApi
+from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api, fields, marshal_with
 from configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
