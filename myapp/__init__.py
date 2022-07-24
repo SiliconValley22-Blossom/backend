@@ -12,7 +12,7 @@ from flask_migrate import Migrate
 from flask_restx import Api as DocApi
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api, fields, marshal_with
-from configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
+from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
