@@ -15,7 +15,7 @@ from flask_restful import Resource, Api, fields, marshal_with
 from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
-from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 import datetime
 
 import redis
@@ -24,7 +24,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
-#metrics = PrometheusMetrics.for_app_factory()
 metrics = GunicornInternalPrometheusMetrics.for_app_factory()
 
 def create_app():
@@ -39,16 +38,9 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = JWT_KEY
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
-    metrics = PrometheusMetrics(app)
 
     metrics.init_app(app)
-    # metrics.register_default(
-    #     metrics.counter(
-    #         'by_path_counter', 'Request count by request paths',
-    #         labels={'path': lambda: request.path}
-    #     )
-    # )
-
+   
     jwt = JWTManager(app)
 
     app.app_context().push()
