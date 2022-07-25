@@ -15,6 +15,7 @@ from flask_restful import Resource, Api, fields, marshal_with
 from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
+from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 import datetime
 
