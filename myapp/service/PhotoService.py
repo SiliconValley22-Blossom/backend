@@ -64,8 +64,8 @@ def colorized(blackPhotoId, colorPhotoId, fileFormat):
     uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId, 'color')
 
 
-def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
-    s3_Key = f'{flag}/{p_uuid}.{fileFormat}'
+def uploadPhotosToS3(file, fileFormat, p_uuid):
+    s3_Key = f'{p_uuid}.{fileFormat}'
 
     bucket.put_object(
         Body=file,
