@@ -1,21 +1,27 @@
-from flask import jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask import jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, set_access_cookies
 from flask_restful import reqparse
 from flask_restx import Namespace, Resource
+
+from myapp.service.TokenService import TokenService
 
 nsRefresh = Namespace('api/refresh')
 
 
 @nsRefresh.route("")
 class RefreshController(Resource):
-    # Request Fields
-    requestParser = reqparse.RequestParser()
-    requestParser.add_argument('email', type=str, nullable=False, trim=True)
-    requestParser.add_argument('password', type=str, nullable=False, trim=True)
-
-    @jwt_required(refresh=True)
+    @jwt_required(locations=['cookies'], refresh=True)
     def get(self):
         # refresh token 재발급
-        current_user = get_jwt_identity()
-        access_token = create_access_token(identity=current_user)
-        return jsonify(access_token=access_token, current_user=current_user)
+        curUser = get_jwt_identity()
+        refresh_token = request.cookies.get('refresh_token_cookie')
+
+        tokenService = TokenService()
+        new_token = tokenService.recreateAccessToken(curUser, refresh_token)
+        resp = jsonify({
+            'message': 'Access token is recreated'
+        })
+        set_access_cookies(resp, new_token)
+        resp.status = 200
+
+        return resp
