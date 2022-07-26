@@ -18,19 +18,25 @@ app = Celery('tasks',
              broker=RBMQ_CONNECTION_URI)
 
 
-def savePhoto(file, userId):
+
+def savePhoto(file, email):
     fileFormat = file.content_type.split("/")[1]
+    sql = f"SELECT user_id \
+            FROM user \
+            WHERE email='{email}'"
+    cursor = db.session.execute(sql)
+    userId = cursor.fetchall()[0][0]
 
     # DB에 file 정보 저장
-    color_uuid = str(uuid.uuid4()) + "." + fileFormat
-    instance_color = Photo(name="color_" + file.filename, fileFormat=file.content_type, user=userId, url=color_uuid)
+    color_uuid = 'color/' + str(uuid.uuid4()) + "." + fileFormat
+    instance_color = Photo(name="color_" + file.filename, file_format=file.content_type, user=userId, url=color_uuid)
 
     db.session.add(instance_color)
     db.session.commit()
     db.session.refresh(instance_color)
 
-    black_uuid = str(uuid.uuid4()) + "." + fileFormat
-    instance_black = Photo(name=file.filename, fileFormat=file.content_type, user=userId, url=black_uuid,
+    black_uuid = 'black/' + str(uuid.uuid4()) + "." + fileFormat
+    instance_black = Photo(name=file.filename, file_format=file.content_type, user=userId, url=black_uuid,
                            color_id=instance_color.photo_id)
     db.session.add(instance_black)
 
@@ -63,11 +69,11 @@ def uploadPhotosToS3(file, fileFormat, p_uuid, flag):
 
 
 def getPhotosFromBucketByEmail(email):
-    sql_query = f"select p1.url as black_url, p2.url as color_url \
-                from photo p1 join photo p2 \
-                where p1.user=(select user_id from user where email='{email}')\
-                 and p1.is_deleted=0 and p1.color_id=p2.photo_id\
-                order by p1.created_at desc"
+    sql_query = f"SELECT p1.url AS black_url, p2.url AS color_url \
+                  FROM photo p1 JOIN photo p2 \
+                  WHERE p1.user=(SELECT user_id FROM user WHERE email='{email}')\
+                        and p1.is_deleted=0 and p1.color_id=p2.photo_id\
+                  ORDER BY p1.created_at DESC"
     cursor = db.session.execute(sql_query)
 
     results = cursor.fetchall()  # (흑백사진 url, 컬러사진 url)
@@ -115,5 +121,5 @@ def imageToByte(image_file, format):
 def getPhotoByPhotoId(photo_id):
     target = Photo.query.filter(and_(Photo.is_deleted == False, Photo.photo_id == photo_id)).with_entities(
         Photo.url).first()[0]
-    dic={"photo":str(target)}
+    dic = {"photo": str(target)}
     return dic
