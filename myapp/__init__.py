@@ -1,26 +1,21 @@
+import datetime
 
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_cors import CORS
 import redis
-
+from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager
 )
+from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_restx import Api as DocApi
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api, fields, marshal_with
-from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
-
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
+from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
-import redis
-
+mail = Mail()
 db = SQLAlchemy()
 migrate = Migrate()
 jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
@@ -39,17 +34,27 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['JWT_SECRET_KEY'] = JWT_KEY
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
+    app.config['JWT_SECRET_KEY'] = "sdf093oeio3rpoj"
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(hours=2)
+
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_USERNAME'] = 'seonvelop@gmail.com'
+    app.config['MAIL_PASSWORD'] = '.'
+
 
     metrics.init_app(app)
+    mail.init_app(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     jwt = JWTManager(app)
 
     app.app_context().push()
-    db.init_app(app)
-    migrate.init_app(app, db)
+
     # flask-migrate 적용
 
 
@@ -71,6 +76,7 @@ def create_app():
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
 
+    '''
     def unauthorized_response():
         return make_response("Custom 401 Error", 401)
 
@@ -86,6 +92,6 @@ def create_app():
     def unathentication(error):
         print(error)
         return jsonify({'message': "로그인이 필요합니다. 해당 기능에 대한 접근 권한이 없습니다."})
-
+    '''
 
     return app
