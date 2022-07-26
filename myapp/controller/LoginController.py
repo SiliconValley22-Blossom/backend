@@ -7,9 +7,9 @@ from flask_restx import Namespace, Resource, fields
 
 nsLogin = Namespace('api/login')
 
-login = nsLogin.model('Login',{
-    "email":fields.String(required=True),
-    "password":fields.String(required=True)
+login = nsLogin.model('Login', {
+    "email": fields.String(required=True),
+    "password": fields.String(required=True)
 })
 
 
@@ -37,13 +37,8 @@ class LoginController(Resource):
         # try:
         loginRequest = LoginRequest(data)
         loginService = LoginService.LoginService()
-        access,refresh = loginService.login(loginRequest)
-        resp = jsonify({
-            'access_token': access,
-            'refresh_token': refresh
-        })
+        access, refresh = loginService.login(loginRequest)
+        resp = jsonify({'message': 'Login Successfully'})
         set_access_cookies(resp, access)
         set_refresh_cookies(resp, refresh)
         return resp
-
-        # return LoginResponse(result).__dict__

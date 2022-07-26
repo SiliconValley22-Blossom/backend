@@ -33,9 +33,3 @@ def application(environ, start_response):
         return view(request)
     except HTTPException as e:
         return e
-
-'''
-@jwt.unauthorized_loader
-def my_invalid_token_callback(expired_token):
-    return Response(403)
-'''

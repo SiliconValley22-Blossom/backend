@@ -17,7 +17,7 @@ from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRE
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
-import datetime
+
 
 import redis
 
@@ -25,7 +25,10 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
-metrics = GunicornInternalPrometheusMetrics.for_app_factory()
+
+metrics = PrometheusMetrics.for_app_factory()
+#metrics = GunicornInternalPrometheusMetrics.for_app_factory()
+
 
 def create_app():
     app = Flask(__name__)
@@ -41,7 +44,7 @@ def create_app():
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
 
     metrics.init_app(app)
-   
+
     jwt = JWTManager(app)
 
     app.app_context().push()
@@ -67,6 +70,22 @@ def create_app():
     # doc_api.add_namespace(nsAdmin)
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
+
+    def unauthorized_response():
+        return make_response("Custom 401 Error", 401)
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(callback):
+        return unauthorized_response()
+
+    @app.errorhandler(422)
+    def unauthorized(e):
+        return unauthorized_response()
+
+    @app.errorhandler(403)
+    def unathentication(error):
+        print(error)
+        return jsonify({'message': "로그인이 필요합니다. 해당 기능에 대한 접근 권한이 없습니다."})
 
 
     return app

@@ -1,5 +1,5 @@
-from flask import request, Response
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import request, Response, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, set_access_cookies
 from flask_restx import Namespace
 from flask_restx import Resource
 
@@ -20,17 +20,21 @@ class PhotoController(Resource):
         url_list = getPhotosFromBucketByEmail(email)
         return url_list
 
+
+    @jwt_required(locations=['cookies'])
     def post(self):
         """클라이언트로부터 요청받은 흑백사진을 저장하고 컬러화한다."""
+        curUser = get_jwt_identity()
         reqFile = request.files['file']
-        result = savePhoto(reqFile, userId=1)
-        return Response(result, status=201)
+        savePhoto(reqFile, curUser)
+        return Response("created", status=201)
 
+    @jwt_required(locations=['cookies'])
     def delete(self):
         """요청받은 사진을 삭제 처리한다."""
-        targets = request.get_json()
-        deletePhotosById(targets['id'])
-        return Response(targets, status=204)
+        id_list = request.get_json()['id']
+        deletePhotosById(id_list)
+        return Response(id_list, status=204)
 
 
 @nsPhoto.route('/<int:photo_id>')
@@ -39,4 +43,11 @@ class PhotoSingleController(Resource):
     def get(self, photo_id):
         """photo_id에 해당하는 사진 단일 조회"""
         result = getPhotoByPhotoId(photo_id)
-        return result, 200
+        resp = jsonify(result)
+        return resp, 200
+
+
+'''
+422 : "Signature verification failed"
+
+'''
