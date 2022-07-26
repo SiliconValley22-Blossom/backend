@@ -16,7 +16,6 @@ class UserService:
         # 새로운 회원
         else:
             pw_hash = encrypt(userRequest.password)
-            print(pw_hash)
         user = User(email=userRequest.email,
                     password=pw_hash,
                     nickname=userRequest.nickname)
