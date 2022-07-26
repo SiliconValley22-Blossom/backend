@@ -11,19 +11,24 @@ from flask_jwt_extended import (
 from flask_migrate import Migrate
 from flask_restx import Api as DocApi
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api, fields, marshal_with
+from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
 
 # import Config
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
+
 import redis
 
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
+jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
+
 
 metrics = PrometheusMetrics.for_app_factory()
 #metrics = GunicornInternalPrometheusMetrics.for_app_factory()
+
 
 def create_app():
     app = Flask(__name__)
@@ -34,10 +39,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    # app.config['JWT_SECRET_KEY'] = Config.key
-    # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.access
-    # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.refresh
-    metrics = PrometheusMetrics(app)
+    app.config['JWT_SECRET_KEY'] = JWT_KEY
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
 
     metrics.init_app(app)
 
