@@ -43,7 +43,7 @@ def savePhoto(file, email):
     db.session.refresh(instance_black)
 
     # s3 흑백사진 저장
-    uploadPhotosToS3(file, fileFormat, black_uuid, "black")
+    uploadPhotosToS3(file, fileFormat, black_uuid)
 
     
 
