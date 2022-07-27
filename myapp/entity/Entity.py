@@ -1,10 +1,18 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from myapp import db
 
 
+@dataclass
 class User(db.Model):
     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
+    user_id: int
+    email: str
+    nickname: str
+    created_at: datetime
+    updated_at: datetime
+    is_deleted: bool
 
     user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(30), unique=True, nullable=False)

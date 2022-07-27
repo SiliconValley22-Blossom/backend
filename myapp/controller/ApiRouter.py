@@ -1,3 +1,4 @@
+from .AdminController import AdminUserController
 from .LogoutController import LogoutController
 from .AccessController import AccessController
 from .PhotoController import *
@@ -15,6 +16,8 @@ def routeApi(api):
     api.add_resource(LogoutController, '/api/logout')
     api.add_resource(AccessController, '/api/access')
     api.add_resource(RefreshController, '/api/refresh')
+    api.add_resource(AdminUserController, '/api/user/list')
+
 
 
 from werkzeug.wrappers import Request
