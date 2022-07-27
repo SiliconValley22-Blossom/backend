@@ -26,4 +26,4 @@ requests~=2.28.1
 prometheus_flask_exporter~=0.20.2
 python_dotenv~=0.20.0
 redis~=4.3.4
-flask-main~=0.9.1
+flask-mail~=0.9.1
