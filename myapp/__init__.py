@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import redis
 from flask import Flask
@@ -10,7 +11,6 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_restx import Api as DocApi
 from flask_sqlalchemy import SQLAlchemy
-# import Config
 from prometheus_flask_exporter import PrometheusMetrics
 
 from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRES
@@ -34,16 +34,16 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['JWT_SECRET_KEY'] = "sdf093oeio3rpoj"
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(hours=2)
+    app.config['JWT_SECRET_KEY'] = JWT_KEY
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
 
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_SERVER'] =os.environ.get('MAIL_SERVER')
+    app.config['MAIL_PORT'] = os.environ.get('MAIL_PORT')
     app.config['MAIL_USE_TLS'] = False
     app.config['MAIL_USE_SSL'] = True
-    app.config['MAIL_USERNAME'] = 'seonvelop@gmail.com'
-    app.config['MAIL_PASSWORD'] = '.'
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
 
     metrics.init_app(app)
@@ -67,12 +67,13 @@ def create_app():
     from .controller.LoginController import nsLogin
     from .controller.LogoutController import nsLogout
     from .controller.AccessController import nsAccess
+    from .controller.AdminController import nsAdmin
     doc_api.add_namespace(nsPhoto)
     doc_api.add_namespace(nsUser)
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
     doc_api.add_namespace(nsAccess)
-    # doc_api.add_namespace(nsAdmin)
+    doc_api.add_namespace(nsAdmin)
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
 
