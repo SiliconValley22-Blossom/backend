@@ -16,7 +16,7 @@ def routeApi(api):
     api.add_resource(LogoutController, '/api/logout')
     api.add_resource(AccessController, '/api/access')
     api.add_resource(RefreshController, '/api/refresh')
-    api.add_resource(AdminUserController, '/api/user/list')
+    api.add_resource(AdminUserController, '/api/admin/users/list')
 
 
 
