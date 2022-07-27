@@ -18,7 +18,6 @@ app = Celery('tasks',
              broker=RBMQ_CONNECTION_URI)
 
 
-
 def savePhoto(file, email):
     fileFormat = file.content_type.split("/")[1]
     sql = f"SELECT user_id \
@@ -45,13 +44,11 @@ def savePhoto(file, email):
     # s3 흑백사진 저장
     uploadPhotosToS3(file, fileFormat, black_uuid)
 
-    
-
     # ai 셀러리 요청 (그 다음은 비동기처리)
     colorized.delay(black_uuid, color_uuid, fileFormat)
 
-    return {"black_photo_id":instance_black.photo_id,
-     "color_photo_id":instance_color.photo_id}
+    return {"black_photo_id": instance_black.photo_id,
+            "color_photo_id": instance_color.photo_id}
 
 
 @app.task

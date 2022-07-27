@@ -16,18 +16,19 @@ class PhotoController(Resource):
     @jwt_required(locations=['cookies'])
     def get(self):
         """User ID에 해당하는 사진을 조회한다."""
-        email=get_jwt_identity()
+        email = get_jwt_identity()
         url_list = getPhotosFromBucketByEmail(email)
         return url_list
-
 
     @jwt_required(locations=['cookies'])
     def post(self):
         """클라이언트로부터 요청받은 흑백사진을 저장하고 컬러화한다."""
         curUser = get_jwt_identity()
         reqFile = request.files['file']
-        savePhoto(reqFile, curUser)
-        return Response("created", status=201)
+        result = savePhoto(reqFile, curUser)
+        resp = jsonify(result)
+        resp.status = 201
+        return resp
 
     @jwt_required(locations=['cookies'])
     def delete(self):
