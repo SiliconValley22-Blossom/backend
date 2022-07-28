@@ -37,14 +37,6 @@ class UserController(Resource):
     requestParser.add_argument('nickname', type=str, nullable=False, trim=True)
     requestParser.add_argument('password', type=str, nullable=False, trim=True)
 
-    #@jwt_required(locations=['cookies'])
-    def get(self):
-        '''비밀번호 user 이메일로 전송'''
-        #curUser = get_jwt_identity()
-        userService = UserService()
-        resp = userService.sendPassword('1')
-        return resp
-
     @nsUser.expect(user)  # 요청될 body model
     @nsUser.response(200, {"email": "String", "nickname": "Nickname"})  # 반환될 값
     def post(self):
@@ -70,3 +62,14 @@ class UserSingleController(Resource):
         userService.deleteById(user_id)
 
         return Response(status=204)
+
+
+@nsUser.route('/reset-pw')
+class UserPwController(Resource):
+    @jwt_required(locations=['cookies'])
+    def post(self):
+        '''비밀번호 user 이메일로 전송'''
+        curUser = get_jwt_identity()
+        userService = UserService()
+        resp = userService.sendPassword(curUser)
+        return resp

@@ -20,17 +20,16 @@ class UserService:
         # 새로운 회원
         else:
             pw_hash = encrypt(userRequest.password)
-        user = User(email=userRequest.email,
-                    password=pw_hash,
-                    nickname=userRequest.nickname)
-        db.session.add(user)
-        db.session.commit()
-        return user
+            user = User(email=userRequest.email,
+                        password=pw_hash,
+                        nickname=userRequest.nickname)
+            db.session.add(user)
+            db.session.commit()
+            return user
 
-    def isExistByEmail(self, email):
+    def isExistByEmail(self, email) -> bool:
         result = User.query.filter_by(email=email).count()
-        print(result)
-        return result >= 1
+        return True if result else False
 
     def deleteById(self, user_id):
         result = User.query.filter_by(user_id=user_id).first()
@@ -55,7 +54,7 @@ class UserService:
         return resp
 
     def sendPassword(self, curUser):
-        target = User.query.filter(User.email == "qwe").first()
+        target = User.query.filter(User.email == curUser).first()
         tmp_pw = createTempPassword()
         tmp_pw_hash = encrypt(tmp_pw)
         target.password = tmp_pw_hash
@@ -64,9 +63,7 @@ class UserService:
         db.session.commit()
 
         content = '{nick}님의 임시 비밀번호는 [{pw}]입니다.'.format(nick=target.nickname, pw=tmp_pw)
-        print(1)
         send_email(content,"seonvelop@gmail.com")
-        print(4)
         resp = jsonify({'message': '회원님의 이메일로 비밀번호를 전송하였습니다.'})
         return resp
 
@@ -86,11 +83,9 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(content, to):
-    print(2)
     app = current_app._get_current_object()
-    msg = Message("[BLOSSOM] 임시 비밀번호 발급 안내 ",sender="seonvelop@gmail.com", recipients=[to])
+    msg = Message("[BLOSSOM] 임시 비밀번호 발급 안내",sender="seonvelop@gmail.com", recipients=[to])
     msg.body = content
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
-    print(3)
     return thr
