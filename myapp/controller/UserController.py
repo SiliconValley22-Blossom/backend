@@ -7,6 +7,7 @@ from myapp.entity.Entity import User
 from myapp.service import UserService
 from flask_restx import Namespace, fields, Resource
 
+
 nsUser = Namespace('api/users')
 user = nsUser.model('User', {
     'email': fields.String,

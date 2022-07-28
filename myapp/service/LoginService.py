@@ -29,10 +29,8 @@ class LoginService:
 
         raise Unauthorized(www_authenticate="/api/login", description="wrong password")
 
-    def logout(self):
-        current_user = get_jwt_identity()
-        user = get_jwt()['jti']
+    def logout(self,refresh):
         resp = jsonify({'msg': 'Logout successfully'})
-        jwt_redis.set(current_user, "", ex=0) # refresh token 으로 변경
+        jwt_redis.delete(refresh)
 
         return resp
