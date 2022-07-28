@@ -53,7 +53,7 @@ def savePhoto(file, email):
 
 @app.task
 def colorized(blackPhotoId, colorPhotoId, fileFormat):
-    blackImage = bucket.Object(f'{blackPhotoId}.{fileFormat}').get()['Body']
+    blackImage = bucket.Object(f'{blackPhotoId}').get()['Body']
 
     upload = {'file': imageToByte(blackImage, fileFormat)}
 
