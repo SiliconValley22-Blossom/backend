@@ -62,7 +62,7 @@ def colorized(blackPhotoId, colorPhotoId, fileFormat):
 
 
 def uploadPhotosToS3(file, fileFormat, p_uuid):
-    s3_Key = f'{p_uuid}.{fileFormat}'
+    s3_Key = f'{p_uuid}'
 
     bucket.put_object(
         Body=file,
