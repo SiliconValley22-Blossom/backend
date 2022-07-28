@@ -45,7 +45,7 @@ class PhotoSingleController(Resource):
         """photo_id에 해당하는 사진 단일 조회"""
         result = getPhotoByPhotoId(photo_id)
         resp = jsonify(result)
-        return resp, 200
+        return resp
 
 
 '''
