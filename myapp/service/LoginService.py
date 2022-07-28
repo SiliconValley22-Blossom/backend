@@ -34,7 +34,5 @@ class LoginService:
         user = get_jwt()['jti']
         resp = jsonify({'msg': 'Logout successfully'})
         jwt_redis.set(current_user, "", ex=0) # refresh token 으로 변경
-        # 쿠키 삭제
-        resp.set_cookie('access_token_cookie', '', expires=0)
-        resp.set_cookie('refresh_token_cookie', '', expires=0)
+
         return resp

@@ -10,13 +10,15 @@ from myapp.service.LoginService import LoginService
 nsLogout = Namespace('api/logout')
 
 
-
 @nsLogout.route("")
 class LogoutController(Resource):
-    def get(self):
+    def post(self):
         if verify_jwt_in_request(locations=['cookies'], optional=True):
             loginService = LoginService()
             resp = loginService.logout()
-            return resp
         else:
-            resp = jsonify({})
+            resp = jsonify({'message':'로그아웃 되었습니다.'})
+        # 쿠키 삭제
+        resp.set_cookie('access_token_cookie', '', expires=0)
+        resp.set_cookie('refresh_token_cookie', '', expires=0)
+        return resp
