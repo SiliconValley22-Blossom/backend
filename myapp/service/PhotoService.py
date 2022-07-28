@@ -58,7 +58,7 @@ def colorized(blackPhotoId, colorPhotoId, fileFormat):
     upload = {'file': imageToByte(blackImage, fileFormat)}
 
     colorImage = requests.post(COLORIZED_API, files=upload)
-    uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId, 'color')
+    uploadPhotosToS3(colorImage.content, fileFormat, colorPhotoId)
 
 
 def uploadPhotosToS3(file, fileFormat, p_uuid):
