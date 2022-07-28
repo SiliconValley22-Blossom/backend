@@ -1,4 +1,3 @@
-import paginate
 from sqlalchemy import and_, desc
 
 from myapp import db
