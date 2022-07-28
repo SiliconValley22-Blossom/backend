@@ -10,6 +10,7 @@ from .LoginController import *
 def routeApi(api):
     api.add_resource(UserController, '/api/users')
     api.add_resource(UserSingleController, '/api/users/<int:user_id>')
+    api.add_resource(UserPwController, '/api/users/reset-pw')
     api.add_resource(PhotoController, '/api/photos')
     api.add_resource(PhotoSingleController, '/api/photos/<int:photo_id>')
     api.add_resource(LoginController, '/api/login')
