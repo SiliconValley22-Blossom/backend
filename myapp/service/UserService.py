@@ -5,7 +5,7 @@ from threading import Thread
 from flask import jsonify, current_app
 from flask_mail import Message
 from sqlalchemy import select
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 
 from myapp import db, mail
 from myapp.entity import User
@@ -42,16 +42,15 @@ class UserService:
         target = User.query.filter(User.email == curUser).first()
         pw_hash = encrypt(data.get('password'))
 
+        if target.password != pw_hash:
+            raise Unauthorized(www_authenticate="/api/login", description="비밀번호가 일치하지 않습니다.")
         if pw_hash == target.password:
             new_pw_hash = encrypt(data.get('new_password'))
             target.password = new_pw_hash
             db.session.add(target)
             db.session.commit()
             resp = jsonify({'message': '비밀번호가 변경되었습니다.'})
-        else:
-            resp = jsonify({'message': '비밀번호가 맞지 않습니다.'})
-            resp.status = 400
-        return resp
+            return resp
 
     def sendPassword(self, curUser):
         target = User.query.filter(User.email == curUser).first()
