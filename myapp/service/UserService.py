@@ -1,10 +1,11 @@
 import string
 import random
+from datetime import datetime
 from threading import Thread
 
 from flask import jsonify, current_app
 from flask_mail import Message
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 
 from myapp import db, mail
@@ -47,6 +48,8 @@ class UserService:
         if pw_hash == target.password:
             new_pw_hash = encrypt(data.get('new_password'))
             target.password = new_pw_hash
+            target.updated_at = datetime.utcnow()
+
             db.session.add(target)
             db.session.commit()
             resp = jsonify({'message': '비밀번호가 변경되었습니다.'})
@@ -57,6 +60,7 @@ class UserService:
         tmp_pw = createTempPassword()
         tmp_pw_hash = encrypt(tmp_pw)
         target.password = tmp_pw_hash
+        target.updated_at = datetime.utcnow()
 
         db.session.add(target)
         db.session.commit()
@@ -64,6 +68,16 @@ class UserService:
         content = '{nick}님의 임시 비밀번호는 [{pw}]입니다.'.format(nick=target.nickname, pw=tmp_pw)
         send_email(content,"seonvelop@gmail.com")
         resp = jsonify({'message': '회원님의 이메일로 비밀번호를 전송하였습니다.'})
+        return resp
+
+    def getUserInfo(self, curUser):
+        target = User.query.filter(and_(User.email==curUser)).first()
+        resp=jsonify({
+            'user_id':target.user_id,
+            'email':target.email,
+            'nickname':target.nickname,
+            'updated_at':target.updated_at
+        })
         return resp
 
 

@@ -38,6 +38,13 @@ class UserController(Resource):
     requestParser.add_argument('nickname', type=str, nullable=False, trim=True)
     requestParser.add_argument('password', type=str, nullable=False, trim=True)
 
+    @jwt_required(locations=['cookies'])
+    def get(self):
+        curUser = get_jwt_identity()
+        userService = UserService()
+        result = userService.getUserInfo(curUser)
+        return result
+
     @nsUser.expect(user)  # 요청될 body model
     @nsUser.response(200, {"email": "String", "nickname": "Nickname"})  # 반환될 값
     def post(self):
