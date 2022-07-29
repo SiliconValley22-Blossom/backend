@@ -4,7 +4,7 @@ from flask_restx import Namespace
 from flask_restx import Resource
 
 from myapp.service.PhotoService import deletePhotosById, savePhoto, \
-    getPhotosFromBucketByEmail, getPhotoByPhotoId
+    getPhotosFromBucketByEmail, getPhotoByPhotoId, getPhotosFromBucketByUserId
 
 ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -13,12 +13,21 @@ nsPhoto = Namespace('api/photos')
 
 @nsPhoto.route('')
 class PhotoController(Resource):
-    @jwt_required(locations=['cookies'])
     def get(self):
         """User ID에 해당하는 사진을 조회한다."""
-        email = get_jwt_identity()
-        url_list = getPhotosFromBucketByEmail(email)
-        return url_list
+        param = request.args.get('userId')
+        print(param)
+        if param is None:
+            if verify_jwt_in_request(locations=['cookies']):
+                email = get_jwt_identity()
+                print(email)
+                result = getPhotosFromBucketByEmail(email)
+                resp = jsonify({'photo_list': result})
+        else:
+            result = getPhotosFromBucketByUserId(param)
+            resp = jsonify({'photo_list': result})
+
+        return resp
 
     @jwt_required(locations=['cookies'])
     def post(self):
@@ -46,9 +55,3 @@ class PhotoSingleController(Resource):
         result = getPhotoByPhotoId(photo_id)
         resp = jsonify(result)
         return resp
-
-
-'''
-422 : "Signature verification failed"
-
-'''

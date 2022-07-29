@@ -81,9 +81,19 @@ def getPhotosFromBucketByEmail(email):
 
     results = cursor.fetchall()  # (흑백사진 url, 컬러사진 url)
     results = [list(row) for row in results]
+    return results
 
-    return {"photo_list": results}
+def getPhotosFromBucketByUserId(user_id):
+    sql_query = f"SELECT p1.url AS black_url, p2.url AS color_url \
+                  FROM photo p1 JOIN photo p2 \
+                  WHERE p1.user={user_id}\
+                        and p1.is_deleted=0 and p1.color_id=p2.photo_id\
+                  ORDER BY p1.created_at DESC"
+    cursor = db.session.execute(sql_query)
 
+    results= cursor.fetchall()
+    results = [list(row) for row in results]
+    return results
 
 def deletePhotosById(id_list):
     targets = Photo.query.filter(Photo.photo_id.in_(id_list))
