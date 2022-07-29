@@ -2,10 +2,10 @@ import datetime
 import os
 
 import redis
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import (
-    JWTManager
+    JWTManager, verify_jwt_in_request
 )
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -30,7 +30,6 @@ def create_app():
     doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api/docs')
 
     from .configs import getURI
-    from .controller import routeApi
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -38,7 +37,7 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWT_REFRESH_TOKEN_EXPIRES
 
-    app.config['MAIL_SERVER'] =os.environ.get('MAIL_SERVER')
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
     app.config['MAIL_PORT'] = os.environ.get('MAIL_PORT')
     app.config['MAIL_USE_TLS'] = False
     app.config['MAIL_USE_SSL'] = True
@@ -77,22 +76,12 @@ def create_app():
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
 
-    '''
-    def unauthorized_response():
-        return make_response("Custom 401 Error", 401)
-
-    @jwt.unauthorized_loader
-    def unauthorized_callback(callback):
-        return unauthorized_response()
-
-    @app.errorhandler(422)
-    def unauthorized(e):
-        return unauthorized_response()
-
-    @app.errorhandler(403)
-    def unathentication(error):
-        print(error)
-        return jsonify({'message': "로그인이 필요합니다. 해당 기능에 대한 접근 권한이 없습니다."})
-    '''
+    @app.route('/api/is-login')
+    def check_login():
+        if verify_jwt_in_request(locations=['cookies'], optional=True):
+            resp=jsonify({'is-login':True})
+        else:
+            resp=jsonify({'is-login':False})
+        return resp
 
     return app
