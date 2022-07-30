@@ -6,7 +6,7 @@ from myapp.service.AdminService import AdminService
 nsAdmin = Namespace('api/admin')
 
 
-@nsAdmin.route('/users/list')
+@nsAdmin.route('/users')
 class AdminUserController(Resource):
     def get(self):
         page = request.args.get('page', type=int, default=1)
