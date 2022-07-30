@@ -13,14 +13,14 @@ nsPhoto = Namespace('api/photos')
 
 @nsPhoto.route('')
 class PhotoController(Resource):
+    @jwt_required(locations=['cookies'])
     def get(self):
         """User ID에 해당하는 사진을 조회"""
         param = request.args.get('userId')
         if param is None:
-            if verify_jwt_in_request(locations=['cookies']):
-                email = get_jwt_identity()
-                result = getPhotosFromBucketByEmail(email)
-                resp = jsonify({'photo_list': result})
+            email = get_jwt_identity()
+            result = getPhotosFromBucketByEmail(email)
+            resp = jsonify({'photo_list': result})
         else:
             result = getPhotosFromBucketByUserId(param)
             resp = jsonify({'photo_list': result})
