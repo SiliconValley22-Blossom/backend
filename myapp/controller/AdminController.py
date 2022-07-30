@@ -15,7 +15,7 @@ class AdminUserController(Resource):
         return jsonify(result)
 
     def delete(self):
-        id_list = request.json.get('id_list')
+        idList = request.json.get('id_list')
         adminService = AdminService()
-        adminService.deleteUserForcefully(id_list)
+        adminService.deleteUserForcefully(idList)
         return 204

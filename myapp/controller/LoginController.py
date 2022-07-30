@@ -1,9 +1,9 @@
 from flask import jsonify
-from flask_jwt_extended import set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import set_access_cookies, set_refresh_cookies, verify_jwt_in_request
 from flask_restful import reqparse
-from myapp.entity.Entity import User
-from myapp.service import LoginService
 from flask_restx import Namespace, Resource, fields
+
+from myapp.service import LoginService
 
 nsLogin = Namespace('api/login')
 
@@ -33,12 +33,24 @@ class LoginController(Resource):
 
     @nsLogin.expect(login)
     def post(self):
+        '''회원 로그인'''
         data = LoginController.requestParser.parse_args()
-        # try:
         loginRequest = LoginRequest(data)
         loginService = LoginService.LoginService()
         access, refresh = loginService.login(loginRequest)
+
         resp = jsonify({'message': 'Login Successfully'})
         set_access_cookies(resp, access)
         set_refresh_cookies(resp, refresh)
+        return resp
+
+
+@nsLogin.route('/check')
+class CheckLoginController(Resource):
+    def get(self):
+        '''회원 로그인 여부 확인'''
+        if verify_jwt_in_request(locations=['cookies'], optional=True):
+            resp = jsonify({'is_login': True})
+        else:
+            resp = jsonify({'is_login': False})
         return resp

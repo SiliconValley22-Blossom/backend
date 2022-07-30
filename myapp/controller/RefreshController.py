@@ -1,6 +1,5 @@
 from flask import jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, set_access_cookies
-from flask_restful import reqparse
+from flask_jwt_extended import jwt_required, get_jwt_identity, set_access_cookies
 from flask_restx import Namespace, Resource
 
 from myapp.service.TokenService import TokenService
@@ -12,16 +11,16 @@ nsRefresh = Namespace('api/refresh')
 class RefreshController(Resource):
     @jwt_required(locations=['cookies'], refresh=True)
     def get(self):
-        # refresh token 재발급
+        '''refresh token 재발급'''
         curUser = get_jwt_identity()
-        refresh_token = request.cookies.get('refresh_token_cookie')
+        refreshToken = request.cookies.get('refresh_token_cookie')
 
         tokenService = TokenService()
-        new_token = tokenService.recreateAccessToken(curUser, refresh_token)
+        newToken = tokenService.recreateAccessToken(curUser, refreshToken)
         resp = jsonify({
-            'message': 'Access token is recreated'
+            'message': 'Access token has recreated'
         })
-        set_access_cookies(resp, new_token)
+        set_access_cookies(resp, newToken)
         resp.status = 200
 
         return resp

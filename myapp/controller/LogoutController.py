@@ -1,8 +1,5 @@
-from datetime import timedelta
-
 from flask import jsonify, request
-from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, \
-    verify_jwt_in_request
+from flask_jwt_extended import verify_jwt_in_request
 from flask_restx import Namespace, Resource
 
 from myapp.service.LoginService import LoginService
@@ -13,6 +10,7 @@ nsLogout = Namespace('api/logout')
 @nsLogout.route("")
 class LogoutController(Resource):
     def post(self):
+        '''회원 로그아웃'''
         if verify_jwt_in_request(locations=['cookies'], optional=True):
             loginService = LoginService()
             refresh_token = request.cookies['refresh_token_cookie']

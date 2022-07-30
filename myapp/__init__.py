@@ -2,10 +2,10 @@ import datetime
 import os
 
 import redis
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import (
-    JWTManager, verify_jwt_in_request
+    JWTManager
 )
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -27,7 +27,7 @@ metrics = PrometheusMetrics.for_app_factory()
 
 def create_app():
     app = Flask(__name__)
-    doc_api = DocApi(app, version="1.0",title='Blossom API Server', description='설명', doc='/api/docs')
+    doc_api = DocApi(app, version="1.0", title='Blossom API Server', description='설명', doc='/api/docs')
 
     from .configs import getURI
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()
@@ -44,7 +44,6 @@ def create_app():
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
-
     metrics.init_app(app)
     mail.init_app(app)
     db.init_app(app)
@@ -54,10 +53,6 @@ def create_app():
 
     app.app_context().push()
 
-    # flask-migrate 적용
-
-
-    from .entity import User, Photo
     from myapp.controller import routeApi
     routeApi(doc_api)
     from .controller.PhotoController import nsPhoto
@@ -65,23 +60,13 @@ def create_app():
     from .controller.RefreshController import nsRefresh
     from .controller.LoginController import nsLogin
     from .controller.LogoutController import nsLogout
-    from .controller.AccessController import nsAccess
     from .controller.AdminController import nsAdmin
     doc_api.add_namespace(nsPhoto)
     doc_api.add_namespace(nsUser)
     doc_api.add_namespace(nsRefresh)
     doc_api.add_namespace(nsLogin)
-    doc_api.add_namespace(nsAccess)
     doc_api.add_namespace(nsAdmin)
     doc_api.add_namespace(nsLogout)
     CORS(app, supports_credentials=True)
-
-    @app.route('/api/is-login')
-    def check_login():
-        if verify_jwt_in_request(locations=['cookies'], optional=True):
-            resp=jsonify({'is-login':True})
-        else:
-            resp=jsonify({'is-login':False})
-        return resp
 
     return app

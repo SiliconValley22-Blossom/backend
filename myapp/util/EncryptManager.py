@@ -1,16 +1,16 @@
 import hashlib
 
 
-def encrypt(rowPassword):
+def encrypt(rawPassword):
     m = hashlib.sha256()
-    m.update(rowPassword.encode('utf-8'))
+    m.update(rawPassword.encode('utf-8'))
 
     return m.hexdigest()[:30]
 
 
-def checkPassword(encryptPassword, rowPassword):
+def checkPassword(encryptPassword, rawPassword):
     m = hashlib.sha256()
-    m.update(rowPassword.encode('utf-8'))
+    m.update(rawPassword.encode('utf-8'))
 
     toEncrypt = m.hexdigest()[:30]
 

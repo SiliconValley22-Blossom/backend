@@ -1,12 +1,9 @@
-import json
-
 from flask import Response, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import reqparse
-from myapp.entity.Entity import User
-from myapp.service import UserService
 from flask_restx import Namespace, fields, Resource
 
+from myapp.service import UserService
 
 nsUser = Namespace('api/users')
 user = nsUser.model('User', {
@@ -40,6 +37,7 @@ class UserController(Resource):
 
     @jwt_required(locations=['cookies'])
     def get(self):
+        '''회원 정보 조회'''
         curUser = get_jwt_identity()
         userService = UserService()
         result = userService.getUserInfo(curUser)
@@ -48,6 +46,7 @@ class UserController(Resource):
     @nsUser.expect(user)  # 요청될 body model
     @nsUser.response(200, {"email": "String", "nickname": "Nickname"})  # 반환될 값
     def post(self):
+        '''회원 회원가입'''
         data = UserController.requestParser.parse_args()
         userRequest = UserRequest(data)
         userService = UserService()
@@ -56,6 +55,7 @@ class UserController(Resource):
 
     @jwt_required(locations=['cookies'])
     def patch(self):
+        '''회원 비밀번호 변경'''
         data = request.json
         curUser = get_jwt_identity()
         userService = UserService()
@@ -66,6 +66,7 @@ class UserController(Resource):
 @nsUser.route("/<int:uesr_id>")
 class UserSingleController(Resource):
     def delete(self, user_id):
+        '''user_id에 해당하는 회원 삭제 처리'''
         userService = UserService()
         userService.deleteById(user_id)
 
@@ -76,7 +77,7 @@ class UserSingleController(Resource):
 class UserPwController(Resource):
     @jwt_required(locations=['cookies'])
     def post(self):
-        '''비밀번호 user 이메일로 전송'''
+        '''임시 비밀번호를 회원 이메일로 전송'''
         curUser = get_jwt_identity()
         userService = UserService()
         resp = userService.sendPassword(curUser)

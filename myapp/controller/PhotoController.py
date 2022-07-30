@@ -1,5 +1,5 @@
 from flask import request, Response, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, set_access_cookies
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_restx import Namespace
 from flask_restx import Resource
 
@@ -14,13 +14,11 @@ nsPhoto = Namespace('api/photos')
 @nsPhoto.route('')
 class PhotoController(Resource):
     def get(self):
-        """User ID에 해당하는 사진을 조회한다."""
+        """User ID에 해당하는 사진을 조회"""
         param = request.args.get('userId')
-        print(param)
         if param is None:
             if verify_jwt_in_request(locations=['cookies']):
                 email = get_jwt_identity()
-                print(email)
                 result = getPhotosFromBucketByEmail(email)
                 resp = jsonify({'photo_list': result})
         else:
@@ -31,7 +29,7 @@ class PhotoController(Resource):
 
     @jwt_required(locations=['cookies'])
     def post(self):
-        """클라이언트로부터 요청받은 흑백사진을 저장하고 컬러화한다."""
+        """요청받은 흑백사진을 저장하고 컬러화 진행"""
         curUser = get_jwt_identity()
         reqFile = request.files['file']
         result = savePhoto(reqFile, curUser)
@@ -41,10 +39,10 @@ class PhotoController(Resource):
 
     @jwt_required(locations=['cookies'])
     def delete(self):
-        """요청받은 사진을 삭제 처리한다."""
-        id_list = request.get_json()['id']
-        deletePhotosById(id_list)
-        return Response(id_list, status=204)
+        """Id 리스트에 있는 사진들을 삭제 처리"""
+        idList = request.get_json()['id']
+        deletePhotosById(idList)
+        return Response(idList, status=204)
 
 
 @nsPhoto.route('/<int:photo_id>')
@@ -52,6 +50,5 @@ class PhotoSingleController(Resource):
     @jwt_required(locations=['cookies'])
     def get(self, photo_id):
         """photo_id에 해당하는 사진 단일 조회"""
-        result = getPhotoByPhotoId(photo_id)
-        resp = jsonify(result)
+        resp = getPhotoByPhotoId(photo_id)
         return resp
