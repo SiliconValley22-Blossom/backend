@@ -1,5 +1,3 @@
-from sqlalchemy import and_, desc
-
 from myapp import db
 from myapp.entity import User
 
@@ -9,6 +7,8 @@ class AdminService:
         targets = User.query.filter(User.user_id.in_(idList)).all()
         for tar in targets:
             tar.is_deleted = True
+            for photo in tar.photo:
+                photo.is_deleted = True
             db.session.add(tar)
         db.session.commit()
 
