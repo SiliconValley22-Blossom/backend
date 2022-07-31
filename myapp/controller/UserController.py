@@ -27,7 +27,7 @@ respUserInfo = nsUser.model('respUserInfo', {
     'nickname': fields.String,
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime,
-    'is_deleted': fields.DateTime
+    'is_deleted': fields.Boolean
 })
 
 
