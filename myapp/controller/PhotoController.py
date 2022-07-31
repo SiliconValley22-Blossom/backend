@@ -1,19 +1,22 @@
 from flask import request, Response, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
-from flask_restx import Namespace
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_restx import Namespace, fields
 from flask_restx import Resource
 
 from myapp.service.PhotoService import deletePhotosById, savePhoto, \
     getPhotosFromBucketByEmail, getPhotoByPhotoId, getPhotosFromBucketByUserId
 
-ALLOWED_EXTENSION = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-
 nsPhoto = Namespace('api/photos')
+idList = nsPhoto.model('Id', {
+    'id_list': fields.List(fields.Integer)
+})
 
 
 @nsPhoto.route('')
 class PhotoController(Resource):
     @jwt_required(locations=['cookies'])
+    @nsPhoto.param("userId", "Id에 해당하는 사진 조회 / 토큰으로 사진 조회", type=int)
+    @nsPhoto.response(200, "", nsPhoto.model('getphoto', {'photo_list': fields.List(fields.Integer)}))
     def get(self):
         """User ID에 해당하는 사진을 조회"""
         param = request.args.get('userId')
@@ -28,6 +31,10 @@ class PhotoController(Resource):
         return resp
 
     @jwt_required(locations=['cookies'])
+    @nsPhoto.response(201, "", nsPhoto.model('postphoto', {
+        "black_photo_id": fields.Integer,
+        "color_photo_id": fields.Integer
+    }))
     def post(self):
         """요청받은 흑백사진을 저장하고 컬러화 진행"""
         curUser = get_jwt_identity()
@@ -38,6 +45,8 @@ class PhotoController(Resource):
         return resp
 
     @jwt_required(locations=['cookies'])
+    @nsPhoto.expect(idList)
+    @nsPhoto.response(204, "", idList)
     def delete(self):
         """Id 리스트에 있는 사진들을 삭제 처리"""
         idList = request.get_json()['id']
@@ -48,6 +57,7 @@ class PhotoController(Resource):
 @nsPhoto.route('/<int:photo_id>')
 class PhotoSingleController(Resource):
     @jwt_required(locations=['cookies'])
+    @nsPhoto.response(200, "", nsPhoto.model('photoid', {'photo': fields.Integer}))
     def get(self, photo_id):
         """photo_id에 해당하는 사진 단일 조회"""
         resp = getPhotoByPhotoId(photo_id)

@@ -27,7 +27,7 @@ metrics = PrometheusMetrics.for_app_factory()
 
 def create_app():
     app = Flask(__name__)
-    doc_api = DocApi(app, version="1.0", title='Blossom API Server', description='설명', doc='/api/docs')
+    doc_api = DocApi(app, version="2.0", title='Blossom API Server', description='Blossom Backend API Documentation', doc='/api/docs')
 
     from .configs import getURI
     app.config['SQLALCHEMY_DATABASE_URI'] = getURI()

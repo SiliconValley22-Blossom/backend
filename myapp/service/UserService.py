@@ -74,7 +74,9 @@ class UserService:
             'user_id': target.user_id,
             'email': target.email,
             'nickname': target.nickname,
-            'updated_at': target.updated_at
+            'created_at': target.created_at,
+            'updated_at': target.updated_at,
+            'is_deleted': target.is_deleted
         })
         return resp
 

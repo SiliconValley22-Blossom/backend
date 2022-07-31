@@ -10,6 +10,7 @@ nsRefresh = Namespace('api/refresh')
 @nsRefresh.route("")
 class RefreshController(Resource):
     @jwt_required(locations=['cookies'], refresh=True)
+    @nsRefresh.response(200, 'Access token has recreated')
     def get(self):
         '''refresh token 재발급'''
         curUser = get_jwt_identity()

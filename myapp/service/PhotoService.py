@@ -125,6 +125,8 @@ def imageToByte(imageFile, format):
 
 def getPhotoByPhotoId(photoId):
     target = Photo.query.filter(and_(Photo.is_deleted == False, Photo.photo_id == photoId)).with_entities(
-        Photo.url).first()[0]
-    result = jsonify({"photo": str(target)})
+        Photo.url).first()
+    if target:
+        target = target[0]
+    result = jsonify({"photo": target})
     return result

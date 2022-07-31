@@ -14,7 +14,6 @@ class AdminService:
 
     def getAllUsers(self, page):
         userList = User.query \
-            .filter(User.user_role == 'guest') \
             .order_by(User.created_at)\
             .all()
 

@@ -9,6 +9,7 @@ nsLogout = Namespace('api/logout')
 
 @nsLogout.route("")
 class LogoutController(Resource):
+    @nsLogout.response(200, "Logged out.")
     def post(self):
         '''회원 로그아웃'''
         if verify_jwt_in_request(locations=['cookies'], optional=True):
@@ -16,7 +17,7 @@ class LogoutController(Resource):
             refresh_token = request.cookies['refresh_token_cookie']
             resp = loginService.logout(refresh_token)
         else:
-            resp = jsonify({'message':'로그아웃 되었습니다.'})
+            resp = jsonify({'message': 'Logged out.'})
         # 쿠키 삭제
         resp.set_cookie('access_token_cookie', '', expires=0)
         resp.set_cookie('refresh_token_cookie', '', expires=0)
