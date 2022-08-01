@@ -54,8 +54,10 @@ class UserService:
             resp = jsonify({'message': '비밀번호가 변경되었습니다.'})
             return resp
 
-    def sendPassword(self, curUser):
-        target = User.query.filter(User.email == curUser).first()
+    def sendPassword(self, email):
+        target = User.query.filter(User.email == email).first()
+        if target is None:
+            raise Unauthorized(www_authenticate="/api/users/reset-password", description=f"{email}에 해당하는 회원 정보가 없습니다.")
         tempPassword = createTempPassword()
         hashedTempPassword = encrypt(tempPassword)
         target.password = hashedTempPassword
@@ -63,7 +65,7 @@ class UserService:
 
         db.session.commit()
 
-        content = '{nick}님의 임시 비밀번호는 [{pw}]입니다.'.format(nick=target.nickname, pw=tempPassword)
+        content = f'{target.nickname}님의 임시 비밀번호는 [{tempPassword}]입니다.'
         sendEmail(content, "seonvelop@gmail.com")
         resp = jsonify({'message': '회원님의 이메일로 비밀번호를 전송하였습니다.'})
         return resp

@@ -98,11 +98,10 @@ class UserSingleController(Resource):
 
 @nsUser.route('/reset-password')
 class UserPwController(Resource):
-    @jwt_required(locations=['cookies'])
     @nsUser.response(200, "회원님의 이메일로 비밀번호를 전송하였습니다.")
     def post(self):
         '''임시 비밀번호를 회원 이메일로 전송'''
-        curUser = get_jwt_identity()
+        email = request.json['email']
         userService = UserService()
-        resp = userService.sendPassword(curUser)
+        resp = userService.sendPassword(email)
         return resp
