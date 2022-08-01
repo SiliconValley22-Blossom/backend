@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace, fields
 
 from myapp.service.AdminService import AdminService
@@ -26,7 +26,8 @@ class AdminUserController(Resource):
     def get(self):
         """모든 회원 조회"""
         page = request.args.get('page', type=int, default=1)
-        adminService = AdminService()
+        curUser = get_jwt_identity()
+        adminService = AdminService(curUser)
         result = adminService.getAllUsers(page)
         return jsonify(result)
 
@@ -36,6 +37,7 @@ class AdminUserController(Resource):
     def delete(self):
         """회원 삭제"""
         idList = request.json.get('id_list')
-        adminService = AdminService()
+        curUser = get_jwt_identity()
+        adminService = AdminService(curUser)
         adminService.deleteUserForcefully(idList)
         return 204

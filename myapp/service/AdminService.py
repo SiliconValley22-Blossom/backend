@@ -1,8 +1,18 @@
+from sqlalchemy import and_
+from werkzeug.exceptions import Forbidden
+
 from myapp import db
 from myapp.entity import User
 
 
 class AdminService:
+    def __init__(self, email):
+        target = User.query.filter(and_(User.email == email, User.user_role == 'admin')).first()
+        if target:
+            return
+        else:
+            raise Forbidden(description="접근이 제한되었습니다.")
+
     def deleteUserForcefully(self, idList):
         targets = User.query.filter(User.user_id.in_(idList)).all()
         for tar in targets:
