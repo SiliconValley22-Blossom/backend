@@ -96,7 +96,7 @@ class UserSingleController(Resource):
         return Response(status=204)
 
 
-@nsUser.route('/reset-pw')
+@nsUser.route('/reset-password')
 class UserPwController(Resource):
     @jwt_required(locations=['cookies'])
     @nsUser.response(200, "회원님의 이메일로 비밀번호를 전송하였습니다.")
