@@ -66,7 +66,7 @@ class UserService:
         db.session.commit()
 
         content = f'{target.nickname}님의 임시 비밀번호는 [{tempPassword}]입니다.'
-        sendEmail(content, "seonvelop@gmail.com")
+        sendEmail(content, email)
         resp = jsonify({'message': '회원님의 이메일로 비밀번호를 전송하였습니다.'})
         return resp
 
