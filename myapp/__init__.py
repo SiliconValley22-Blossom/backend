@@ -18,8 +18,7 @@ from .configs import JWT_KEY, JWT_ACCESS_TOKEN_EXPIRES, JWT_REFRESH_TOKEN_EXPIRE
 mail = Mail()
 db = SQLAlchemy()
 migrate = Migrate()
-jwt_redis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
-
+jwtRedis = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 metrics = PrometheusMetrics.for_app_factory()
 #metrics = GunicornInternalPrometheusMetrics.for_app_factory()
