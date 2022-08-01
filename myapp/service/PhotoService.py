@@ -48,11 +48,11 @@ def savePhoto(file, email):
     # ai 셀러리 요청 (그 다음은 비동기처리)
     colorized.delay(blackUuid, colorUuid, fileFormat)
 
-    resp = jsonify({
+    result = {
         "black_photo_id": instanceBlack.photo_id,
         "color_photo_id": instanceColor.photo_id
-    })
-    return resp
+    }
+    return result
 
 @app.task
 def colorized(blackPhotoId, colorPhotoId, fileFormat):
