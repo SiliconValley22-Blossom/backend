@@ -6,6 +6,7 @@ from threading import Thread
 from flask import jsonify, current_app
 from flask_mail import Message
 from sqlalchemy import and_
+from sqlalchemy.util import NoneType
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 
 from myapp import db, mail
@@ -29,8 +30,14 @@ class UserService:
             return user
 
     def isExistByEmail(self, email):
-        result = User.query.filter_by(email=email).count()
-        return True if result else False
+        result = User.query.filter(User.email==email).first()
+        print(type(result))
+        print()
+        if type(result) is NoneType:
+            return False
+        else:
+            return True
+
 
     def deleteById(self, user_id):
         result = User.query.filter_by(user_id=user_id).first()
