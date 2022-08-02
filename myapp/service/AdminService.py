@@ -24,6 +24,7 @@ class AdminService:
 
     def getAllUsers(self, page):
         userList = User.query \
+            .filter(User.is_deleted==False)\
             .order_by(User.created_at)\
             .all()
 
