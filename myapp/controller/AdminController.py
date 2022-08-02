@@ -23,6 +23,7 @@ user = nsAdmin.model('viewUsers', {
 class AdminUserController(Resource):
     @jwt_required(locations=['cookies'])
     @nsAdmin.response(200, "모든 회원 조회", user)
+    @nsAdmin.response(403, "접근 권한이 없습니다.")
     def get(self):
         """모든 회원 조회"""
         page = request.args.get('page', type=int, default=1)

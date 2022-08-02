@@ -63,7 +63,8 @@ class UserController(Resource):
         return result
 
     @nsUser.expect(user)  # 요청될 body model
-    @nsUser.response(201, "회원가입", respUser)  # 반환될 값
+    @nsUser.response(201, "회원가입이 완료되었습니다.", respUser)  # 반환될 값
+    @nsUser.response(400, "이미 존재하는 이메일입니다.")
     def post(self):
         '''회원 회원가입'''
         data = UserController.requestParser.parse_args()
@@ -75,6 +76,7 @@ class UserController(Resource):
     @jwt_required(locations=['cookies'])
     @nsUser.expect(pw)
     @nsUser.response(200, "비밀번호 변경되었습니다.")
+    @nsUser.response(401, "비밀번호가 일치하지 않습니다.")
     def patch(self):
         '''회원 비밀번호 변경'''
         data = request.json
@@ -99,6 +101,7 @@ class UserSingleController(Resource):
 @nsUser.route('/reset-password')
 class UserPwController(Resource):
     @nsUser.response(200, "회원님의 이메일로 비밀번호를 전송하였습니다.")
+    @nsUser.response(401, "이메일에 해당하는 회원정보가 존재하지 않습니다.")
     def post(self):
         '''임시 비밀번호를 회원 이메일로 전송'''
         email = request.json['email']
