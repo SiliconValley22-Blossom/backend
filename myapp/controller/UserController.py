@@ -21,7 +21,7 @@ respUser = nsUser.model('ResponseUser', {
     'email': fields.String,
     'nickname': fields.String
 })
-respUserInfo = nsUser.model('ReponseUserInfo', {
+respUserInfo = nsUser.model('ResponseUserInfo', {
     'user_id': fields.Integer,
     'email': fields.String,
     'nickname': fields.String,
