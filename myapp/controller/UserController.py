@@ -12,16 +12,16 @@ user = nsUser.model('User', {
     'password': fields.String,
     'nickname': fields.String
 })
-pw = nsUser.model('password', {
+pw = nsUser.model('ModifyPassword', {
     'password': fields.String,
     'new_password': fields.String
 })
-respUser = nsUser.model('respUser', {
+respUser = nsUser.model('ResponseUser', {
     'user_id': fields.Integer,
     'email': fields.String,
     'nickname': fields.String
 })
-respUserInfo = nsUser.model('respUserInfo', {
+respUserInfo = nsUser.model('ReponseUserInfo', {
     'user_id': fields.Integer,
     'email': fields.String,
     'nickname': fields.String,

@@ -9,7 +9,7 @@ nsAdmin = Namespace('api/admin')
 idList = nsAdmin.model('Id', {
     'id_list': fields.List(fields.Integer)
 })
-user = nsAdmin.model('user', {
+user = nsAdmin.model('viewUsers', {
     "user_id": fields.Integer,
     "email": fields.String,
     "nickname": fields.String,

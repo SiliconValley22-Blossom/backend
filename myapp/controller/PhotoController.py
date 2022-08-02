@@ -16,7 +16,7 @@ idList = nsPhoto.model('Id', {
 class PhotoController(Resource):
     @jwt_required(locations=['cookies'])
     @nsPhoto.param("userId", "Id에 해당하는 사진 조회 / 토큰으로 사진 조회", type=int)
-    @nsPhoto.response(200, "", nsPhoto.model('getphoto', {'photo_list': fields.List(fields.Integer)}))
+    @nsPhoto.response(200, "", nsPhoto.model('GetPhotos', {'photo_list': fields.List(fields.Integer)}))
     def get(self):
         """User ID에 해당하는 사진을 조회"""
         param = request.args.get('userId')
@@ -31,7 +31,7 @@ class PhotoController(Resource):
         return resp
 
     @jwt_required(locations=['cookies'])
-    @nsPhoto.response(201, "", nsPhoto.model('postphoto', {
+    @nsPhoto.response(201, "", nsPhoto.model('PostPhoto', {
         "black_photo_id": fields.Integer,
         "color_photo_id": fields.Integer
     }))
@@ -57,7 +57,7 @@ class PhotoController(Resource):
 @nsPhoto.route('/<int:photo_id>')
 class PhotoSingleController(Resource):
     @jwt_required(locations=['cookies'])
-    @nsPhoto.response(200, "", nsPhoto.model('photoid', {'photo': fields.Integer}))
+    @nsPhoto.response(200, "", nsPhoto.model('GetPhoto', {'photo': fields.Integer}))
     def get(self, photo_id):
         """photo_id에 해당하는 사진 단일 조회"""
         resp = getPhotoByPhotoId(photo_id)

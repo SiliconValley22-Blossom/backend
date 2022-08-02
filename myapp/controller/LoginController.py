@@ -7,7 +7,7 @@ from myapp.service import LoginService
 
 nsLogin = Namespace('api/login')
 
-login = nsLogin.model('Login', {
+login = nsLogin.model('LoginForm', {
     "email": fields.String(required=True),
     "password": fields.String(required=True)
 })
@@ -48,8 +48,8 @@ class LoginController(Resource):
 
 @nsLogin.route('/check')
 class CheckLoginController(Resource):
-    @nsLogin.response(200, "로그인 되어 있을 때", nsLogin.model('islogin', {'is_login': fields.Boolean}))
-    @nsLogin.response(401, "로그인 안 되어 있을 때", nsLogin.model('islogin', {'is_login': fields.Boolean}))
+    @nsLogin.response(200, "로그인 되어 있을 때", nsLogin.model('Checklogin', {'is_login': fields.Boolean}))
+    @nsLogin.response(401, "로그인 안 되어 있을 때", nsLogin.model('Checklogin', {'is_login': fields.Boolean}))
     def get(self):
         '''회원 로그인 여부 확인'''
         if verify_jwt_in_request(locations=['cookies'], optional=True):
